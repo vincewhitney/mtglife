@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>MTG Life Counter</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(18, 25, 45, 0.92);
+      --panel-2: rgba(26, 35, 62, 0.92);
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #f5f7ff;
+      --muted: #aab4d6;
+      --accent: #7c9cff;
+      --danger: #ff6b81;
+      --good: #65d6a6;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(124, 156, 255, 0.18), transparent 30%),
+        radial-gradient(circle at bottom, rgba(101, 214, 166, 0.12), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    body {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+    }
+
+    .player {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    }
+
+    .player.top {
+      background: linear-gradient(180deg, rgba(124, 156, 255, 0.12), transparent 75%);
+    }
+
+    .player.bottom {
+      background: linear-gradient(0deg, rgba(101, 214, 166, 0.12), transparent 75%);
+    }
+
+    .player.top .card {
+      transform: rotate(180deg);
+    }
+
+    .card {
+      width: min(460px, 100%);
+      height: 100%;
+      max-height: 420px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 18px;
+      gap: 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 999px;
+      padding: 10px 14px;
+      min-width: 0;
+      max-width: 65%;
+      text-align: center;
+      outline: none;
+      user-select: text;
+    }
+
+    .reset-btn {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .life-wrap {
+      display: grid;
+      place-items: center;
+      gap: 8px;
+      align-content: center;
+      position: relative;
+    }
+
+    .delta-badge {
+      position: absolute;
+      top: 50%;
+      right: 12%;
+      transform: translateY(-50%);
+      font-size: clamp(1.1rem, 4vw, 1.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(10, 14, 28, 0.72);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      z-index: 2;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    }
+
+    .delta-badge.show {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .delta-badge.positive {
+      color: var(--good);
+    }
+
+    .delta-badge.negative {
+      color: var(--danger);
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .life {
+      font-size: clamp(4rem, 15vw, 7rem);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      min-width: 2ch;
+      text-align: center;
+      user-select: none;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      min-height: 74px;
+      font-size: 2rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.08s ease, background 0.2s ease, border-color 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn.minus {
+      color: var(--danger);
+    }
+
+    .btn.plus {
+      color: var(--good);
+    }
+
+    .quick-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .quick-btn {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      border-radius: 16px;
+      min-height: 48px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .center-line {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(92vw, 440px);
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .coin-button {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06));
+      color: var(--text);
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .coin-button:active {
+      transform: translate(-50%, -50%) scale(0.98);
+    }
+
+    .coin-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 40;
+      padding: 20px;
+    }
+
+    .coin-modal.show {
+      display: flex;
+    }
+
+    .coin-panel {
+      width: min(320px, 100%);
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      text-align: center;
+    }
+
+    .coin-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .coin-result {
+      font-size: clamp(2.5rem, 9vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-bottom: 18px;
+    }
+
+    .coin-close {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-width: 120px;
+    }
+
+    @media (max-height: 760px) {
+      .card {
+        padding: 14px;
+        gap: 10px;
+      }
+
+      .btn {
+        min-height: 62px;
+      }
+
+      .quick-btn {
+        min-height: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="player top" aria-label="Player one panel">
+    <div class="card">
+      <div class="header">
+        <div class="name" contenteditable="true" spellcheck="false" id="name1">Player 1</div>
+        <button class="reset-btn" id="resetTop">Reset</button>
+      </div>
+
+      <div class="life-wrap">
+        <div class="label">Life</div>
+        <div class="life" id="life1">20</div>
+        <div class="delta-badge" id="delta1" aria-live="polite"></div>
+      </div>
+
+      <div>
+        <div class="controls">
+          <button class="btn minus" data-player="1" data-change="-1">−</button>
+          <button class="btn plus" data-player="1" data-change="1">+</button>
+        </div>
+        <div class="quick-row">
+          <button class="quick-btn" data-player="1" data-change="-5">-5</button>
+          <button class="quick-btn" data-player="1" data-change="-10">-10</button>
+          <button class="quick-btn" data-player="1" data-change="5">+5</button>
+          <button class="quick-btn" data-player="1" data-change="10">+10</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="center-line"></div>
+
+  <button class="coin-button" id="coinButton" aria-label="Flip a coin">🪙 Flip Coin</button>
+
+  <div class="coin-modal" id="coinModal" aria-hidden="true">
+    <div class="coin-panel">
+      <div class="coin-title">Coin Flip</div>
+      <div class="coin-result" id="coinResult">Heads</div>
+      <button class="coin-close" id="coinClose">Close</button>
+    </div>
+  </div>
+
+  <section class="player bottom" aria-label="Player two panel">
+    <div class="card">
+      <div class="header">
+        <div class="name" contenteditable="true" spellcheck="false" id="name2">Player 2</div>
+        <button class="reset-btn" id="resetBottom">Reset</button>
+      </div>
+
+      <div class="life-wrap">
+        <div class="label">Life</div>
+        <div class="life" id="life2">20</div>
+        <div class="delta-badge" id="delta2" aria-live="polite"></div>
+      </div>
+
+      <div>
+        <div class="controls">
+          <button class="btn minus" data-player="2" data-change="-1">−</button>
+          <button class="btn plus" data-player="2" data-change="1">+</button>
+        </div>
+        <div class="quick-row">
+          <button class="quick-btn" data-player="2" data-change="-5">-5</button>
+          <button class="quick-btn" data-player="2" data-change="-10">-10</button>
+          <button class="quick-btn" data-player="2" data-change="5">+5</button>
+          <button class="quick-btn" data-player="2" data-change="10">+10</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const state = JSON.parse(localStorage.getItem('mtg-life-state') || '{"life1":20,"life2":20,"name1":"Player 1","name2":"Player 2"}');
+
+    const els = {
+      life1: document.getElementById('life1'),
+      life2: document.getElementById('life2'),
+      name1: document.getElementById('name1'),
+      name2: document.getElementById('name2'),
+      resetTop: document.getElementById('resetTop'),
+      resetBottom: document.getElementById('resetBottom'),
+      coinButton: document.getElementById('coinButton'),
+      coinModal: document.getElementById('coinModal'),
+      coinResult: document.getElementById('coinResult'),
+      coinClose: document.getElementById('coinClose'),
+      delta1: document.getElementById('delta1'),
+      delta2: document.getElementById('delta2')
+    };
+
+    const deltaTimers = {
+      1: null,
+      2: null
+    };
+
+    const deltaTotals = {
+      1: 0,
+      2: 0
+    };
+
+    function render() {
+      els.life1.textContent = state.life1;
+      els.life2.textContent = state.life2;
+      els.name1.textContent = state.name1;
+      els.name2.textContent = state.name2;
+    }
+
+    function save() {
+      localStorage.setItem('mtg-life-state', JSON.stringify(state));
+    }
+
+    function showDelta(player, amount) {
+      const badge = els[`delta${player}`];
+
+      deltaTotals[player] += amount;
+      const total = deltaTotals[player];
+
+      if (total === 0) {
+        badge.textContent = '0';
+        badge.classList.remove('positive', 'negative');
+      } else {
+        badge.textContent = `${total > 0 ? '+' : ''}${total}`;
+        badge.classList.remove('positive', 'negative');
+        badge.classList.add(total > 0 ? 'positive' : 'negative');
+      }
+
+      badge.classList.remove('show');
+      requestAnimationFrame(() => {
+        badge.classList.add('show');
+      });
+
+      clearTimeout(deltaTimers[player]);
+      deltaTimers[player] = setTimeout(() => {
+        badge.classList.remove('show');
+        deltaTotals[player] = 0;
+      }, 3000);
+    }
+
+    function showReset(player) {
+      const badge = els[`delta${player}`];
+      deltaTotals[player] = 0;
+      badge.textContent = 'Reset';
+      badge.classList.remove('positive', 'negative', 'show');
+      requestAnimationFrame(() => {
+        badge.classList.add('show');
+      });
+
+      clearTimeout(deltaTimers[player]);
+      deltaTimers[player] = setTimeout(() => {
+        badge.classList.remove('show');
+      }, 3000);
+    }
+
+    function changeLife(player, amount) {
+      const key = `life${player}`;
+      state[key] += amount;
+      render();
+      save();
+      showDelta(player, amount);
+      if (navigator.vibrate) navigator.vibrate(10);
+    }
+
+    document.querySelectorAll('[data-player][data-change]').forEach((button) => {
+      button.addEventListener('click', () => {
+        changeLife(button.dataset.player, Number(button.dataset.change));
+      });
+    });
+
+    els.resetTop.addEventListener('click', () => {
+      state.life1 = 20;
+      render();
+      save();
+      showReset(1);
+    });
+
+    els.resetBottom.addEventListener('click', () => {
+      state.life2 = 20;
+      render();
+      save();
+      showReset(2);
+    });
+
+    [els.name1, els.name2].forEach((el, index) => {
+      el.addEventListener('blur', () => {
+        state[`name${index + 1}`] = el.textContent.trim() || `Player ${index + 1}`;
+        render();
+        save();
+      });
+
+      el.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          el.blur();
+        }
+      });
+    });
+
+        function flipCoin() {
+      const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
+      els.coinResult.textContent = result;
+      els.coinModal.classList.add('show');
+      els.coinModal.setAttribute('aria-hidden', 'false');
+      if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+    }
+
+    function closeCoinModal() {
+      els.coinModal.classList.remove('show');
+      els.coinModal.setAttribute('aria-hidden', 'true');
+    }
+
+    els.coinButton.addEventListener('click', flipCoin);
+    els.coinClose.addEventListener('click', closeCoinModal);
+    els.coinModal.addEventListener('click', (event) => {
+      if (event.target === els.coinModal) closeCoinModal();
+    });
+
+    render();
+  </script>
+</body>
+</html>
