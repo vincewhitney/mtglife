@@ -12,7 +12,6 @@
       --border: rgba(255, 255, 255, 0.1);
       --text: #f5f7ff;
       --muted: #aab4d6;
-      --accent: #7c9cff;
       --danger: #ff6b81;
       --good: #65d6a6;
       --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
@@ -83,6 +82,13 @@
       gap: 12px;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
     .name {
       font-size: 0.95rem;
       font-weight: 700;
@@ -100,15 +106,34 @@
       user-select: text;
     }
 
-    .reset-btn {
+    .reset-btn,
+    .mini-btn,
+    .coin-close,
+    .coin-button,
+    .btn,
+    .quick-btn {
+      cursor: pointer;
+    }
+
+    .reset-btn,
+    .mini-btn,
+    .coin-close {
       border: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.05);
       color: var(--text);
       border-radius: 999px;
-      padding: 10px 14px;
       font-size: 0.9rem;
+    }
+
+    .reset-btn {
+      padding: 10px 14px;
       font-weight: 600;
-      cursor: pointer;
+    }
+
+    .mini-btn {
+      padding: 10px 12px;
+      font-weight: 700;
+      min-width: 72px;
     }
 
     .life-wrap {
@@ -117,39 +142,6 @@
       gap: 8px;
       align-content: center;
       position: relative;
-    }
-
-    .delta-badge {
-      position: absolute;
-      top: 50%;
-      right: 12%;
-      transform: translateY(-50%);
-      font-size: clamp(1.1rem, 4vw, 1.6rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(10, 14, 28, 0.72);
-      backdrop-filter: blur(8px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.35s ease, transform 0.35s ease;
-      z-index: 2;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
-    }
-
-    .delta-badge.show {
-      opacity: 1;
-      transform: translateY(-50%) translateX(0);
-    }
-
-    .delta-badge.positive {
-      color: var(--good);
-    }
-
-    .delta-badge.negative {
-      color: var(--danger);
     }
 
     .label {
@@ -169,6 +161,88 @@
       user-select: none;
     }
 
+    .delta-badge,
+    .roll-badge {
+      position: absolute;
+      top: 50%;
+      left: 12%; /* move to opposite side of delta */
+      transform: translateY(-50%);
+      width: 96px;
+      height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.9); /* much more opaque */
+      color: #111; /* dark text for contrast */
+      opacity: 0;
+      pointer-events: none;
+      overflow: hidden;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      z-index: 2;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+    }
+
+    .die-face {
+      width: 72px;
+      height: 72px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      align-items: center;
+      justify-items: center;
+    }
+
+    .pip {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: #000; /* classic black pips */
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    .pip.on {
+      opacity: 1;
+    }
+
+    .pip.on {
+      opacity: 1;
+    }
+
+    .roll-badge.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .roll-badge.rolling {
+      opacity: 1;
+      animation: diceRoll 0.7s ease;
+    }
+
+    @keyframes diceRoll {
+      0% {
+        transform: translate(-50%, -50%) scale(0.8) rotate(0deg);
+      }
+      20% {
+        transform: translate(-50%, -50%) scale(1.08) rotate(90deg);
+      }
+      40% {
+        transform: translate(-50%, -50%) scale(0.95) rotate(180deg);
+      }
+      60% {
+        transform: translate(-50%, -50%) scale(1.06) rotate(270deg);
+      }
+      80% {
+        transform: translate(-50%, -50%) scale(0.98) rotate(330deg);
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1) rotate(360deg);
+      }
+    }
+
     .controls {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -183,12 +257,12 @@
       min-height: 74px;
       font-size: 2rem;
       font-weight: 800;
-      cursor: pointer;
       transition: transform 0.08s ease, background 0.2s ease, border-color 0.2s ease;
       touch-action: manipulation;
     }
 
-    .btn:active {
+    .btn:active,
+    .coin-button:active {
       transform: scale(0.98);
     }
 
@@ -215,7 +289,6 @@
       min-height: 48px;
       font-size: 0.95rem;
       font-weight: 700;
-      cursor: pointer;
     }
 
     .center-line {
@@ -243,13 +316,8 @@
       padding: 12px 18px;
       font-size: 0.95rem;
       font-weight: 800;
-      cursor: pointer;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
       backdrop-filter: blur(10px);
-    }
-
-    .coin-button:active {
-      transform: translate(-50%, -50%) scale(0.98);
     }
 
     .coin-modal {
@@ -293,14 +361,8 @@
     }
 
     .coin-close {
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text);
-      border-radius: 999px;
       padding: 12px 18px;
-      font-size: 0.95rem;
       font-weight: 700;
-      cursor: pointer;
       min-width: 120px;
     }
 
@@ -325,25 +387,29 @@
     <div class="card">
       <div class="header">
         <div class="name" contenteditable="true" spellcheck="false" id="name1">Player 1</div>
-        <button class="reset-btn" id="resetTop">Reset</button>
+        <div class="header-actions">
+          <button class="mini-btn" id="rollTop" type="button">🎲 d6</button>
+          <button class="reset-btn" id="resetTop" type="button">Reset</button>
+        </div>
       </div>
 
       <div class="life-wrap">
         <div class="label">Life</div>
         <div class="life" id="life1">20</div>
         <div class="delta-badge" id="delta1" aria-live="polite"></div>
+        <div class="roll-badge" id="rollBadge1" aria-live="polite"></div>
       </div>
 
       <div>
         <div class="controls">
-          <button class="btn minus" data-player="1" data-change="-1">−</button>
-          <button class="btn plus" data-player="1" data-change="1">+</button>
+          <button class="btn minus" type="button" data-player="1" data-change="-1">−</button>
+          <button class="btn plus" type="button" data-player="1" data-change="1">+</button>
         </div>
         <div class="quick-row">
-          <button class="quick-btn" data-player="1" data-change="-5">-5</button>
-          <button class="quick-btn" data-player="1" data-change="-10">-10</button>
-          <button class="quick-btn" data-player="1" data-change="5">+5</button>
-          <button class="quick-btn" data-player="1" data-change="10">+10</button>
+          <button class="quick-btn" type="button" data-player="1" data-change="-5">-5</button>
+          <button class="quick-btn" type="button" data-player="1" data-change="-10">-10</button>
+          <button class="quick-btn" type="button" data-player="1" data-change="5">+5</button>
+          <button class="quick-btn" type="button" data-player="1" data-change="10">+10</button>
         </div>
       </div>
     </div>
@@ -351,13 +417,13 @@
 
   <div class="center-line"></div>
 
-  <button class="coin-button" id="coinButton" aria-label="Flip a coin">🪙 Flip Coin</button>
+  <button class="coin-button" id="coinButton" type="button" aria-label="Flip a coin">🪙 Flip Coin</button>
 
   <div class="coin-modal" id="coinModal" aria-hidden="true">
     <div class="coin-panel">
       <div class="coin-title">Coin Flip</div>
       <div class="coin-result" id="coinResult">Heads</div>
-      <button class="coin-close" id="coinClose">Close</button>
+      <button class="coin-close" id="coinClose" type="button">Close</button>
     </div>
   </div>
 
@@ -365,32 +431,53 @@
     <div class="card">
       <div class="header">
         <div class="name" contenteditable="true" spellcheck="false" id="name2">Player 2</div>
-        <button class="reset-btn" id="resetBottom">Reset</button>
+        <div class="header-actions">
+          <button class="mini-btn" id="rollBottom" type="button">🎲 d6</button>
+          <button class="reset-btn" id="resetBottom" type="button">Reset</button>
+        </div>
       </div>
 
       <div class="life-wrap">
         <div class="label">Life</div>
         <div class="life" id="life2">20</div>
         <div class="delta-badge" id="delta2" aria-live="polite"></div>
+        <div class="roll-badge" id="rollBadge2" aria-live="polite"></div>
       </div>
 
       <div>
         <div class="controls">
-          <button class="btn minus" data-player="2" data-change="-1">−</button>
-          <button class="btn plus" data-player="2" data-change="1">+</button>
+          <button class="btn minus" type="button" data-player="2" data-change="-1">−</button>
+          <button class="btn plus" type="button" data-player="2" data-change="1">+</button>
         </div>
         <div class="quick-row">
-          <button class="quick-btn" data-player="2" data-change="-5">-5</button>
-          <button class="quick-btn" data-player="2" data-change="-10">-10</button>
-          <button class="quick-btn" data-player="2" data-change="5">+5</button>
-          <button class="quick-btn" data-player="2" data-change="10">+10</button>
+          <button class="quick-btn" type="button" data-player="2" data-change="-5">-5</button>
+          <button class="quick-btn" type="button" data-player="2" data-change="-10">-10</button>
+          <button class="quick-btn" type="button" data-player="2" data-change="5">+5</button>
+          <button class="quick-btn" type="button" data-player="2" data-change="10">+10</button>
         </div>
       </div>
     </div>
   </section>
 
   <script>
-    const state = JSON.parse(localStorage.getItem('mtg-life-state') || '{"life1":20,"life2":20,"name1":"Player 1","name2":"Player 2"}');
+    const DEFAULT_STATE = {
+      life1: 20,
+      life2: 20,
+      name1: 'Player 1',
+      name2: 'Player 2'
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem('mtg-life-state');
+        if (!raw) return { ...DEFAULT_STATE };
+        return { ...DEFAULT_STATE, ...JSON.parse(raw) };
+      } catch {
+        return { ...DEFAULT_STATE };
+      }
+    }
+
+    const state = loadState();
 
     const els = {
       life1: document.getElementById('life1'),
@@ -404,22 +491,29 @@
       coinResult: document.getElementById('coinResult'),
       coinClose: document.getElementById('coinClose'),
       delta1: document.getElementById('delta1'),
-      delta2: document.getElementById('delta2')
+      delta2: document.getElementById('delta2'),
+      rollTop: document.getElementById('rollTop'),
+      rollBottom: document.getElementById('rollBottom'),
+      rollBadge1: document.getElementById('rollBadge1'),
+      rollBadge2: document.getElementById('rollBadge2')
     };
 
-    const deltaTimers = {
-      1: null,
-      2: null
-    };
-
-    const deltaTotals = {
-      1: 0,
-      2: 0
+    const deltaTimers = { 1: null, 2: null };
+    const deltaTotals = { 1: 0, 2: 0 };
+    const rollTimers = { 1: null, 2: null };
+    const rollAnimationTimers = { 1: null, 2: null };
+    const diceLayouts = {
+      1: [4],
+      2: [0, 8],
+      3: [0, 4, 8],
+      4: [0, 2, 6, 8],
+      5: [0, 2, 4, 6, 8],
+      6: [0, 2, 3, 5, 6, 8]
     };
 
     function render() {
-      els.life1.textContent = state.life1;
-      els.life2.textContent = state.life2;
+      els.life1.textContent = String(state.life1);
+      els.life2.textContent = String(state.life2);
       els.name1.textContent = state.name1;
       els.name2.textContent = state.name2;
     }
@@ -428,25 +522,24 @@
       localStorage.setItem('mtg-life-state', JSON.stringify(state));
     }
 
+    function triggerShowAnimation(element) {
+      element.classList.remove('show');
+      requestAnimationFrame(() => {
+        element.classList.add('show');
+      });
+    }
+
     function showDelta(player, amount) {
       const badge = els[`delta${player}`];
-
       deltaTotals[player] += amount;
       const total = deltaTotals[player];
 
-      if (total === 0) {
-        badge.textContent = '0';
-        badge.classList.remove('positive', 'negative');
-      } else {
-        badge.textContent = `${total > 0 ? '+' : ''}${total}`;
-        badge.classList.remove('positive', 'negative');
-        badge.classList.add(total > 0 ? 'positive' : 'negative');
-      }
+      badge.textContent = total === 0 ? '0' : `${total > 0 ? '+' : ''}${total}`;
+      badge.classList.remove('positive', 'negative');
+      if (total > 0) badge.classList.add('positive');
+      if (total < 0) badge.classList.add('negative');
 
-      badge.classList.remove('show');
-      requestAnimationFrame(() => {
-        badge.classList.add('show');
-      });
+      triggerShowAnimation(badge);
 
       clearTimeout(deltaTimers[player]);
       deltaTimers[player] = setTimeout(() => {
@@ -459,10 +552,8 @@
       const badge = els[`delta${player}`];
       deltaTotals[player] = 0;
       badge.textContent = 'Reset';
-      badge.classList.remove('positive', 'negative', 'show');
-      requestAnimationFrame(() => {
-        badge.classList.add('show');
-      });
+      badge.classList.remove('positive', 'negative');
+      triggerShowAnimation(badge);
 
       clearTimeout(deltaTimers[player]);
       deltaTimers[player] = setTimeout(() => {
@@ -479,47 +570,58 @@
       if (navigator.vibrate) navigator.vibrate(10);
     }
 
-    document.querySelectorAll('[data-player][data-change]').forEach((button) => {
-      button.addEventListener('click', () => {
-        changeLife(button.dataset.player, Number(button.dataset.change));
-      });
-    });
+    function renderDieFace(value) {
+      const active = new Set(diceLayouts[value] || diceLayouts[1]);
+      return `
+        <div class="die-face" aria-label="Rolled ${value}">
+          ${Array.from({ length: 9 }, (_, i) => `<span class="pip ${active.has(i) ? 'on' : ''}"></span>`).join('')}
+        </div>
+      `;
+    }
 
-    els.resetTop.addEventListener('click', () => {
-      state.life1 = 20;
-      render();
-      save();
-      showReset(1);
-    });
+    function showRoll(player, value) {
+      const badge = els[`rollBadge${player}`];
+      clearTimeout(rollTimers[player]);
+      clearTimeout(rollAnimationTimers[player]);
 
-    els.resetBottom.addEventListener('click', () => {
-      state.life2 = 20;
-      render();
-      save();
-      showReset(2);
-    });
+      badge.classList.remove('show', 'rolling');
 
-    [els.name1, els.name2].forEach((el, index) => {
-      el.addEventListener('blur', () => {
-        state[`name${index + 1}`] = el.textContent.trim() || `Player ${index + 1}`;
-        render();
-        save();
-      });
+      const spinValues = [1, 3, 5, 2, 4, 6];
+      let index = 0;
+      badge.innerHTML = renderDieFace(spinValues[0]);
+      badge.classList.add('rolling');
 
-      el.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          el.blur();
-        }
-      });
-    });
+      const interval = setInterval(() => {
+        index = (index + 1) % spinValues.length;
+        badge.innerHTML = renderDieFace(spinValues[index]);
+      }, 90);
 
-        function flipCoin() {
+      rollAnimationTimers[player] = setTimeout(() => {
+        clearInterval(interval);
+        badge.innerHTML = renderDieFace(value);
+        badge.classList.remove('rolling');
+        triggerShowAnimation(badge);
+
+        rollTimers[player] = setTimeout(() => {
+          badge.classList.remove('show');
+        }, 3000);
+      }, 700);
+    }
+
+    function rollDie(player) {
+      const value = Math.floor(Math.random() * 6) + 1;
+      showRoll(player, value);
+      if (navigator.vibrate) navigator.vibrate([15, 20, 15]);
+      return value;
+    }
+
+    function flipCoin() {
       const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
       els.coinResult.textContent = result;
       els.coinModal.classList.add('show');
       els.coinModal.setAttribute('aria-hidden', 'false');
       if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+      return result;
     }
 
     function closeCoinModal() {
@@ -527,13 +629,64 @@
       els.coinModal.setAttribute('aria-hidden', 'true');
     }
 
-    els.coinButton.addEventListener('click', flipCoin);
-    els.coinClose.addEventListener('click', closeCoinModal);
-    els.coinModal.addEventListener('click', (event) => {
-      if (event.target === els.coinModal) closeCoinModal();
-    });
+    function bindEvents() {
+      document.querySelectorAll('[data-player][data-change]').forEach((button) => {
+        button.addEventListener('click', () => {
+          changeLife(Number(button.dataset.player), Number(button.dataset.change));
+        });
+      });
+
+      els.resetTop.addEventListener('click', () => {
+        state.life1 = 20;
+        render();
+        save();
+        showReset(1);
+      });
+
+      els.resetBottom.addEventListener('click', () => {
+        state.life2 = 20;
+        render();
+        save();
+        showReset(2);
+      });
+
+      [els.name1, els.name2].forEach((el, index) => {
+        el.addEventListener('blur', () => {
+          state[`name${index + 1}`] = el.textContent.trim() || `Player ${index + 1}`;
+          render();
+          save();
+        });
+
+        el.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            el.blur();
+          }
+        });
+      });
+
+      els.coinButton.addEventListener('click', flipCoin);
+      els.coinClose.addEventListener('click', closeCoinModal);
+      els.coinModal.addEventListener('click', (event) => {
+        if (event.target === els.coinModal) closeCoinModal();
+      });
+
+      els.rollTop.addEventListener('click', () => rollDie(1));
+      els.rollBottom.addEventListener('click', () => rollDie(2));
+    }
+
+    function runSelfTests() {
+      console.assert(Object.keys(diceLayouts).length === 6, 'Expected 6 dice layouts');
+      console.assert((diceLayouts[1] || []).length === 1, '1 should have one pip');
+      console.assert((diceLayouts[6] || []).length === 6, '6 should have six pips');
+      console.assert(renderDieFace(5).includes('die-face'), 'renderDieFace should return die markup');
+      console.assert(['Heads', 'Tails'].includes(Math.random() < 0.5 ? 'Heads' : 'Tails'), 'Coin options should be valid');
+    }
 
     render();
+    bindEvents();
+    runSelfTests();
   </script>
 </body>
 </html>
+
