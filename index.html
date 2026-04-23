@@ -164,8 +164,49 @@
     .delta-badge,
     .roll-badge {
       position: absolute;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      z-index: 3;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    }
+
+    .delta-badge {
       top: 50%;
-      left: 12%; /* move to opposite side of delta */
+      right: 12%;
+      transform: translateY(-50%);
+      font-size: clamp(1.1rem, 4vw, 1.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(10, 14, 28, 0.88);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      min-width: 62px;
+      text-align: center;
+    }
+
+    .delta-badge.show {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .delta-badge.positive {
+      color: var(--good);
+    }
+
+    .delta-badge.negative {
+      color: var(--danger);
+    }
+
+    .delta-badge.neutral {
+      color: var(--text);
+    }
+
+    .roll-badge {
+      top: 50%;
+      left: 12%;
       transform: translateY(-50%);
       width: 96px;
       height: 96px;
@@ -173,20 +214,35 @@
       align-items: center;
       justify-content: center;
       border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.9); /* much more opaque */
-      color: #111; /* dark text for contrast */
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.96);
       opacity: 0;
-      pointer-events: none;
       overflow: hidden;
-      transition: opacity 0.35s ease, transform 0.35s ease;
-      z-index: 2;
       box-shadow: 0 10px 24px rgba(0,0,0,0.35);
     }
 
+    .roll-badge.show {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+
+    .roll-badge.rolling {
+      opacity: 1;
+      animation: diceRoll 0.7s ease;
+    }
+
+    @keyframes diceRoll {
+      0% { transform: translateY(-50%) scale(0.8) rotate(0deg); }
+      20% { transform: translateY(-50%) scale(1.08) rotate(90deg); }
+      40% { transform: translateY(-50%) scale(0.95) rotate(180deg); }
+      60% { transform: translateY(-50%) scale(1.06) rotate(270deg); }
+      80% { transform: translateY(-50%) scale(0.98) rotate(330deg); }
+      100% { transform: translateY(-50%) scale(1) rotate(360deg); }
+    }
+
     .die-face {
-      width: 72px;
-      height: 72px;
+      width: 76px;
+      height: 76px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
@@ -198,7 +254,7 @@
       width: 16px;
       height: 16px;
       border-radius: 999px;
-      background: #000; /* classic black pips */
+      background: #000;
       box-shadow: 0 1px 3px rgba(0,0,0,0.4);
       opacity: 0;
       transform: scale(0.95);
@@ -206,41 +262,6 @@
 
     .pip.on {
       opacity: 1;
-    }
-
-    .pip.on {
-      opacity: 1;
-    }
-
-    .roll-badge.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    .roll-badge.rolling {
-      opacity: 1;
-      animation: diceRoll 0.7s ease;
-    }
-
-    @keyframes diceRoll {
-      0% {
-        transform: translate(-50%, -50%) scale(0.8) rotate(0deg);
-      }
-      20% {
-        transform: translate(-50%, -50%) scale(1.08) rotate(90deg);
-      }
-      40% {
-        transform: translate(-50%, -50%) scale(0.95) rotate(180deg);
-      }
-      60% {
-        transform: translate(-50%, -50%) scale(1.06) rotate(270deg);
-      }
-      80% {
-        transform: translate(-50%, -50%) scale(0.98) rotate(330deg);
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(1) rotate(360deg);
-      }
     }
 
     .controls {
@@ -266,13 +287,8 @@
       transform: scale(0.98);
     }
 
-    .btn.minus {
-      color: var(--danger);
-    }
-
-    .btn.plus {
-      color: var(--good);
-    }
+    .btn.minus { color: var(--danger); }
+    .btn.plus { color: var(--good); }
 
     .quick-row {
       display: grid;
@@ -372,13 +388,11 @@
         gap: 10px;
       }
 
-      .btn {
-        min-height: 62px;
-      }
-
-      .quick-btn {
-        min-height: 42px;
-      }
+      .btn { min-height: 62px; }
+      .quick-btn { min-height: 42px; }
+      .roll-badge { width: 84px; height: 84px; }
+      .die-face { width: 68px; height: 68px; }
+      .pip { width: 14px; height: 14px; }
     }
   </style>
 </head>
@@ -502,6 +516,7 @@
     const deltaTotals = { 1: 0, 2: 0 };
     const rollTimers = { 1: null, 2: null };
     const rollAnimationTimers = { 1: null, 2: null };
+
     const diceLayouts = {
       1: [4],
       2: [0, 8],
@@ -522,7 +537,7 @@
       localStorage.setItem('mtg-life-state', JSON.stringify(state));
     }
 
-    function triggerShowAnimation(element) {
+    function animateShow(element) {
       element.classList.remove('show');
       requestAnimationFrame(() => {
         element.classList.add('show');
@@ -535,11 +550,12 @@
       const total = deltaTotals[player];
 
       badge.textContent = total === 0 ? '0' : `${total > 0 ? '+' : ''}${total}`;
-      badge.classList.remove('positive', 'negative');
+      badge.classList.remove('positive', 'negative', 'neutral');
       if (total > 0) badge.classList.add('positive');
-      if (total < 0) badge.classList.add('negative');
+      else if (total < 0) badge.classList.add('negative');
+      else badge.classList.add('neutral');
 
-      triggerShowAnimation(badge);
+      animateShow(badge);
 
       clearTimeout(deltaTimers[player]);
       deltaTimers[player] = setTimeout(() => {
@@ -552,8 +568,9 @@
       const badge = els[`delta${player}`];
       deltaTotals[player] = 0;
       badge.textContent = 'Reset';
-      badge.classList.remove('positive', 'negative');
-      triggerShowAnimation(badge);
+      badge.classList.remove('positive', 'negative', 'neutral');
+      badge.classList.add('neutral');
+      animateShow(badge);
 
       clearTimeout(deltaTimers[player]);
       deltaTimers[player] = setTimeout(() => {
@@ -600,7 +617,7 @@
         clearInterval(interval);
         badge.innerHTML = renderDieFace(value);
         badge.classList.remove('rolling');
-        triggerShowAnimation(badge);
+        animateShow(badge);
 
         rollTimers[player] = setTimeout(() => {
           badge.classList.remove('show');
@@ -680,7 +697,8 @@
       console.assert((diceLayouts[1] || []).length === 1, '1 should have one pip');
       console.assert((diceLayouts[6] || []).length === 6, '6 should have six pips');
       console.assert(renderDieFace(5).includes('die-face'), 'renderDieFace should return die markup');
-      console.assert(['Heads', 'Tails'].includes(Math.random() < 0.5 ? 'Heads' : 'Tails'), 'Coin options should be valid');
+      console.assert(typeof flipCoin === 'function', 'flipCoin should exist');
+      console.assert(typeof showDelta === 'function', 'showDelta should exist');
     }
 
     render();
@@ -689,4 +707,3 @@
   </script>
 </body>
 </html>
-
