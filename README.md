@@ -4,13 +4,20 @@ A simple mobile-friendly Magic: The Gathering life counter built as a single-pag
 
 ## Features
 
-- Two-player life tracking
-- Opponent-facing flipped display
+- Two-, three-, and four-player life tracking
+- Opponent-facing flipped display for two-player games
+- Game setup for Regular or Commander
+- Configurable starting life
 - Tap controls for `+1`, `-1`, `+5`, `-5`, `+10`, `-10`
 - Editable player names
 - Dice roll for each player
+- Animated dice roll result
 - Coin flip for each player
 - New Game button
+- Undo for recent game actions
+- Poison counters in all game modes
+- Commander damage entry modal with source player, target player, live pending total, and `+`/`-` controls
+- Player elimination/return controls
 - Damage taken and life gained tracking
 - Game history saved locally
 - Expandable game logs

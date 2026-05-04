@@ -7,735 +7,1402 @@
   <style>
     :root {
       --bg: #0b1020;
-      --panel: rgba(18, 25, 45, 0.92);
-      --panel-2: rgba(26, 35, 62, 0.92);
-      --border: rgba(255, 255, 255, 0.1);
+      --panel: rgba(18, 25, 45, 0.94);
+      --panel-2: rgba(27, 37, 66, 0.94);
+      --border: rgba(255, 255, 255, 0.12);
       --text: #f5f7ff;
       --muted: #aab4d6;
       --danger: #ff6b81;
       --good: #65d6a6;
+      --warn: #ffd166;
+      --accent: #8aa4ff;
       --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     html, body {
-      margin: 0; padding: 0; height: 100%;
+      margin: 0;
+      min-height: 100%;
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at top, rgba(124, 156, 255, 0.18), transparent 30%),
-        radial-gradient(circle at bottom, rgba(101, 214, 166, 0.12), transparent 28%),
+        radial-gradient(circle at top left, rgba(138, 164, 255, 0.16), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(101, 214, 166, 0.12), transparent 30%),
         var(--bg);
       color: var(--text);
-      overflow: hidden;
     }
 
     body {
-      height: 100dvh;
+      min-height: 100dvh;
       display: grid;
-      grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
-    }
-
-    .player {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 0;
+      grid-template-rows: auto minmax(0, 1fr);
       overflow: hidden;
-      padding: 8px 16px;
     }
 
-    .player.top { background: linear-gradient(180deg, rgba(124, 156, 255, 0.12), transparent 75%); }
-    .player.bottom { background: linear-gradient(0deg, rgba(101, 214, 166, 0.12), transparent 75%); }
-    .player.top .card { transform: rotate(180deg); }
+    body.is-multiplayer {
+      overflow-y: auto;
+    }
 
-    .card {
-      width: min(460px, 100%);
-      height: 100%;
+    body.is-multiplayer .table {
+      height: auto;
       min-height: 0;
-      max-height: none;
-      background: linear-gradient(180deg, var(--panel), var(--panel-2));
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
+      overflow: visible;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; touch-action: manipulation; }
+
+    .app-bar {
       display: grid;
-      grid-template-rows: auto minmax(0, 1fr) auto;
-      padding: 14px;
+      grid-template-columns: auto auto 1fr auto auto;
       gap: 8px;
-      backdrop-filter: blur(10px);
-      overflow: hidden;
+      align-items: center;
+      padding: max(10px, env(safe-area-inset-top)) 12px 8px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8, 12, 24, 0.78);
+      backdrop-filter: blur(12px);
+      z-index: 5;
     }
 
-    .header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-
-    .name {
-      font-size: 0.95rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-      color: var(--muted); border: 1px solid var(--border); background: rgba(255, 255, 255, 0.04);
-      border-radius: 999px; padding: 10px 14px; min-width: 0; max-width: 60%; text-align: center;
-      outline: none; user-select: text;
-    }
-
-    button { font-family: inherit; }
-    .reset-btn, .mini-btn, .coin-close, .coin-button, .btn, .quick-btn, .history-btn, .history-clear { cursor: pointer; }
-
-    .reset-btn, .mini-btn, .coin-close, .history-clear {
-      border: 1px solid var(--border); background: rgba(255, 255, 255, 0.05); color: var(--text);
-      border-radius: 999px; font-size: 0.9rem;
-    }
-
-    .reset-btn { padding: 10px 14px; font-weight: 600; }
-    .mini-btn { padding: 10px 12px; font-weight: 700; min-width: 72px; }
-
-    .life-wrap { display: grid; place-items: center; gap: 8px; align-content: center; position: relative; min-height: 0; }
-    .label { color: var(--muted); font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; }
-    .life { font-size: clamp(3.2rem, 12vh, 6rem); line-height: 0.95; font-weight: 800; letter-spacing: -0.04em; min-width: 2ch; text-align: center; user-select: none; }
-
-    .stats {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
+    .status {
+      justify-self: center;
+      min-width: 0;
       color: var(--muted);
-      font-size: 0.78rem;
-      font-weight: 700;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .stat-pill {
+    .toolbar-btn, .modal-btn, .chip-btn {
       border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
       border-radius: 999px;
-      padding: 6px 9px;
+      font-weight: 800;
+    }
+
+    .toolbar-btn {
+      min-height: 40px;
+      padding: 0 12px;
+      font-size: 0.82rem;
       white-space: nowrap;
     }
 
+    .toolbar-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .table {
+      min-height: 0;
+      height: 100%;
+      display: grid;
+      gap: 10px;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .table.duel { grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+    .table.multiplayer {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: auto;
+      align-content: start;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    .player-card {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 9px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      box-shadow: var(--shadow);
+    }
+
+    .multiplayer .player-card {
+      min-height: 340px;
+      grid-template-rows: auto auto auto;
+    }
+
+    .duel .player-card:first-child { transform: rotate(180deg); }
+
+    .player-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .name {
+      min-width: 0;
+      max-width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 9px 12px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 0.84rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-align: center;
+      outline: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .head-actions { display: flex; gap: 6px; }
+
+    .chip-btn {
+      min-width: 48px;
+      min-height: 36px;
+      padding: 0 10px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .life-zone {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 6px;
+      position: relative;
+    }
+
+    .life-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .life {
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      width: 100%;
+      padding: 0;
+      text-align: center;
+      font-size: clamp(3.2rem, 15vh, 7rem);
+      line-height: 0.92;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .multiplayer .life { font-size: clamp(2.8rem, 13vh, 5.8rem); }
+
+    .stat-row, .counter-row, .commander-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      border-radius: 999px;
+      padding: 6px 8px;
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .pill.danger { color: var(--danger); }
+    .pill.good { color: var(--good); }
+    .pill.warn { color: var(--warn); }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .life-btn {
+      min-height: clamp(42px, 8vh, 66px);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      font-size: 1.15rem;
+      font-weight: 900;
+    }
+
+    .life-btn.minus { color: var(--danger); }
+    .life-btn.plus { color: var(--good); }
+
     .delta-badge, .roll-badge {
-      position: absolute; pointer-events: none; transition: opacity 0.35s ease, transform 0.35s ease;
-      z-index: 3; box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      position: absolute;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0;
+      transform: translateY(-50%) scale(0.98);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.28);
     }
 
     .delta-badge {
-      top: 50%; right: 10%; transform: translateY(-50%);
-      font-size: clamp(1.1rem, 4vw, 1.6rem); font-weight: 800; letter-spacing: -0.03em;
-      padding: 10px 14px; border-radius: 999px; border: 1px solid var(--border);
-      background: rgba(10, 14, 28, 0.88); backdrop-filter: blur(8px); opacity: 0; min-width: 62px; text-align: center;
+      top: 50%;
+      right: 8%;
+      min-width: 58px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 12px;
+      background: rgba(10, 14, 28, 0.9);
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 900;
     }
-    .delta-badge.show { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+    .delta-badge.show, .roll-badge.show {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+
     .delta-badge.positive { color: var(--good); }
     .delta-badge.negative { color: var(--danger); }
     .delta-badge.neutral { color: var(--text); }
 
     .roll-badge {
-      top: 50%; left: 10%; transform: translateY(-50%);
-      width: 96px; height: 96px; display: flex; align-items: center; justify-content: center;
-      border-radius: 18px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.96);
-      opacity: 0; overflow: hidden; box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+      top: 50%;
+      left: 8%;
+      min-width: 72px;
+      min-height: 72px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 18px;
+      padding: 12px;
+      background: rgba(245,247,255,0.96);
+      color: #0b1020;
+      font-size: 1.6rem;
+      font-weight: 900;
+      text-align: center;
     }
-    .roll-badge.show { opacity: 1; transform: translateY(-50%) scale(1); }
-    .roll-badge.rolling { opacity: 1; animation: diceRoll 0.7s ease; }
+
+    .roll-badge.coin-result {
+      background: rgba(10, 14, 28, 0.9);
+    }
+
+    .roll-badge.coin-result .coin-face {
+      box-shadow:
+        inset 0 0 0 4px rgba(255,255,255,0.18),
+        0 0 18px rgba(255, 209, 102, 0.72),
+        0 8px 18px rgba(0,0,0,0.28);
+    }
+
+    .roll-badge.rolling {
+      opacity: 1;
+      animation: diceRoll 0.7s ease;
+    }
 
     @keyframes diceRoll {
-      0% { transform: translateY(-50%) scale(0.8) rotate(0deg); }
+      0% { transform: translateY(-50%) scale(0.78) rotate(0deg); }
       20% { transform: translateY(-50%) scale(1.08) rotate(90deg); }
-      40% { transform: translateY(-50%) scale(0.95) rotate(180deg); }
+      40% { transform: translateY(-50%) scale(0.94) rotate(180deg); }
       60% { transform: translateY(-50%) scale(1.06) rotate(270deg); }
       80% { transform: translateY(-50%) scale(0.98) rotate(330deg); }
       100% { transform: translateY(-50%) scale(1) rotate(360deg); }
     }
 
-    .die-face { width: 76px; height: 76px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); align-items: center; justify-items: center; }
-    .pip { width: 16px; height: 16px; border-radius: 999px; background: #000; box-shadow: 0 1px 3px rgba(0,0,0,0.4); opacity: 0; transform: scale(0.95); }
+    .die-face {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      align-items: center;
+      justify-items: center;
+    }
+
+    .pip {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: #0b1020;
+      opacity: 0;
+    }
+
     .pip.on { opacity: 1; }
 
-    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .btn {
-      border: 1px solid var(--border); border-radius: 20px; background: rgba(255, 255, 255, 0.06); color: var(--text);
-      min-height: clamp(46px, 9vh, 70px); font-size: 1.8rem; font-weight: 800; transition: transform 0.08s ease, background 0.2s ease, border-color 0.2s ease; touch-action: manipulation;
-    }
-    .btn:active, .coin-button:active, .history-btn:active { transform: scale(0.98); }
-    .btn.minus { color: var(--danger); }
-    .btn.plus { color: var(--good); }
-
-    .quick-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 8px; }
-    .quick-btn {
-      border: 1px solid var(--border); background: rgba(255, 255, 255, 0.04); color: var(--muted);
-      border-radius: 14px; min-height: clamp(30px, 5.5vh, 44px); font-size: 0.88rem; font-weight: 700;
-    }
-
-    .middle-controls {
-      width: min(92vw, 440px);
-      margin: 0 auto;
-      padding: 4px 0 6px;
+    .coin-face {
+      width: 56px;
+      height: 56px;
       display: grid;
-      gap: 6px;
+      place-items: center;
+      border-radius: 999px;
+      border: 3px solid #c4912f;
+      background: radial-gradient(circle at 35% 30%, #fff0a8, #f4bf48 45%, #c98522 100%);
+      color: #3a2508;
+      font-size: 1.35rem;
+      font-weight: 900;
+      box-shadow: inset 0 0 0 4px rgba(255,255,255,0.18), 0 8px 16px rgba(0,0,0,0.24);
     }
 
-    .center-line {
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-      pointer-events: none;
+    .roll-badge.flipping {
+      opacity: 1;
+      background: rgba(10, 14, 28, 0.9);
+      perspective: 500px;
     }
 
-    .center-actions {
-      display: flex;
+    .roll-badge.flipping .coin-face {
+      animation: coinFlip 0.32s linear infinite;
+    }
+
+    @keyframes coinFlip {
+      0% { transform: rotateY(0deg) translateY(0); }
+      35% { transform: rotateY(540deg) translateY(-7px); }
+      70% { transform: rotateY(900deg) translateY(3px); }
+      100% { transform: rotateY(1080deg) translateY(0); }
+    }
+
+    .empty-note {
+      color: var(--muted);
+      text-align: center;
+      font-weight: 800;
+      padding: 18px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      width: 100%;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0,0,0,0.58);
       z-index: 20;
     }
 
-    .coin-button, .history-btn {
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06));
-      color: var(--text);
-      border-radius: 999px;
-      padding: 10px 14px;
-      font-size: 0.86rem;
-      font-weight: 800;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      backdrop-filter: blur(10px);
-      white-space: nowrap;
-      pointer-events: auto;
-    }
-
-    .history-btn { margin-right: auto; }
-    .coin-button { margin-left: auto; }
-
-    .modal {
-      position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
-      background: rgba(0, 0, 0, 0.55); z-index: 40; padding: 20px;
-    }
     .modal.show { display: flex; }
 
     .modal-panel {
-      width: min(420px, 100%); max-height: 82vh; overflow: auto;
-      background: linear-gradient(180deg, var(--panel), var(--panel-2)); border: 1px solid var(--border);
-      border-radius: 26px; box-shadow: var(--shadow); padding: 22px; text-align: center;
+      width: min(470px, 100%);
+      max-height: 86vh;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      box-shadow: var(--shadow);
+      padding: 18px;
     }
 
-    .modal-title { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 12px; }
-    .coin-result { font-size: clamp(2.5rem, 9vw, 4rem); font-weight: 800; letter-spacing: -0.04em; margin-bottom: 18px; }
-    .coin-close { padding: 12px 18px; font-weight: 700; min-width: 120px; }
-
-    .history-list { display: grid; gap: 10px; text-align: left; margin: 14px 0; }
-    .game-log {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border);
-      display: grid;
-      gap: 6px;
+    .modal-title {
+      margin: 0 0 14px;
       color: var(--muted);
       font-size: 0.8rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
     }
-    .log-entry {
+
+    .field-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .field select, .field input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      outline: none;
+    }
+
+    .modal-actions {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       gap: 10px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.035);
-      padding: 6px 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
     }
-    .log-entry .positive { color: var(--good); font-weight: 800; }
-    .log-entry .negative { color: var(--danger); font-weight: 800; }
+
+    .modal-btn {
+      min-height: 42px;
+      padding: 0 16px;
+      font-size: 0.84rem;
+    }
+
+    .modal-btn.primary {
+      background: linear-gradient(180deg, rgba(138,164,255,0.28), rgba(101,214,166,0.14));
+    }
+
+    .damage-entry {
+      display: grid;
+      gap: 14px;
+    }
+
+    .damage-source {
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .damage-preview {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .damage-preview .pill {
+      display: grid;
+      place-items: center;
+      min-height: 56px;
+      border-radius: 14px;
+      text-align: center;
+      white-space: normal;
+    }
+
+    .damage-stepper {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .damage-stepper .life-btn {
+      min-height: 48px;
+      font-size: 1rem;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 10px;
+    }
+
     .history-item {
-      border: 1px solid var(--border); background: rgba(255,255,255,0.05); border-radius: 16px;
-      padding: 12px; color: var(--text); font-size: 0.88rem;
-      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
     }
-    .history-summary {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
+
+    .history-item button {
+      width: 100%;
+      border: 0;
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      text-align: left;
+      font-weight: 800;
     }
+
     .history-details {
       display: none;
       margin-top: 10px;
-    }
-    .history-item.expanded .history-details {
-      display: block;
-    }
-    .expand-hint {
       color: var(--muted);
-      font-size: 0.75rem;
-      white-space: nowrap;
+      font-size: 0.82rem;
+      line-height: 1.5;
     }
-    .history-item strong { display: block; margin-bottom: 6px; }
-    .history-meta { color: var(--muted); font-size: 0.78rem; margin-top: 6px; }
-    .history-actions { display: flex; justify-content: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-    .history-clear { padding: 10px 14px; font-weight: 700; }
 
-    @media (max-height: 760px) {
-      .player { padding: 6px 14px; }
-      .card { padding: 10px; gap: 6px; border-radius: 22px; }
-      .name { font-size: 0.78rem; padding: 8px 10px; }
-      .reset-btn, .mini-btn { font-size: 0.78rem; padding: 8px 9px; min-width: auto; }
-      .life { font-size: clamp(2.8rem, 10.5vh, 5rem); }
-      .label { font-size: 0.7rem; }
-      .quick-row { gap: 7px; margin-top: 7px; }
-      .roll-badge { width: 74px; height: 74px; }
-      .die-face { width: 58px; height: 58px; }
-      .pip { width: 12px; height: 12px; }
-      .stats { font-size: 0.62rem; gap: 6px; }
-      .stat-pill { padding: 5px 7px; }
-      .middle-controls { padding: 2px 0 4px; gap: 4px; }
-      .coin-button, .history-btn { padding: 8px 12px; font-size: 0.78rem; }
+    .history-item.expanded .history-details { display: block; }
+
+    .log-list {
+      display: grid;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .log-entry {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-radius: 10px;
+      padding: 7px 8px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    @media (max-width: 720px) {
+      .app-bar { grid-template-columns: repeat(4, minmax(0, auto)); }
+      .status { grid-column: 1 / -1; grid-row: 2; width: 100%; }
+      .toolbar-btn { min-height: 38px; padding: 0 10px; font-size: 0.78rem; }
+      .table.multiplayer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: auto;
+        align-content: start;
+        gap: 8px;
+        padding: 8px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .table.multiplayer .player-card {
+        min-height: 330px;
+      }
+      .player-card { padding: 10px; gap: 7px; border-radius: 18px; }
+      .name { padding: 8px 10px; font-size: 0.72rem; }
+      .chip-btn { min-width: 42px; min-height: 32px; padding: 0 8px; font-size: 0.7rem; }
+      .life-btn { min-height: 40px; font-size: 1rem; border-radius: 12px; }
+      .controls { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+      .damage-stepper { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .pill { font-size: 0.58rem; padding: 5px 7px; }
+    }
+
+    @media (min-width: 721px) and (max-aspect-ratio: 1 / 1) {
+      .table.multiplayer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: auto;
+        align-content: start;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .table.multiplayer .player-card {
+        min-height: 340px;
+      }
+    }
+
+    @media (max-height: 680px) {
+      .app-bar { padding-top: 7px; padding-bottom: 7px; }
+      .table { gap: 7px; padding: 7px; }
+      .player-card { padding: 9px; gap: 6px; }
+      .life { font-size: clamp(2.6rem, 12vh, 4.8rem); }
+      .life-btn { min-height: 36px; }
+      .counter-row, .commander-row { display: none; }
+      .multiplayer .counter-row, .multiplayer .commander-row { display: flex; }
     }
   </style>
 </head>
 <body>
-  <section class="player top" aria-label="Player one panel">
-    <div class="card">
-      <div class="header">
-        <div class="name" contenteditable="true" spellcheck="false" id="name1">Player 1</div>
-        <div class="header-actions">
-          <button class="mini-btn" id="rollTop" type="button">🎲 d6</button>
-          <button class="reset-btn" id="coinTop" type="button">🪙 Flip</button>
-        </div>
-      </div>
+  <header class="app-bar">
+    <button class="toolbar-btn" id="setupButton" type="button">Setup</button>
+    <button class="toolbar-btn" id="undoButton" type="button">Undo</button>
+    <div class="status" id="statusText"></div>
+    <button class="toolbar-btn" id="historyButton" type="button">History</button>
+    <button class="toolbar-btn" id="newGameButton" type="button">New Game</button>
+  </header>
 
-      <div class="life-wrap">
-        <div class="label">Life</div>
-        <div class="life" id="life1">20</div>
-        <div class="stats">
-          <span class="stat-pill" id="damage1">Damage 0</span>
-          <span class="stat-pill" id="gain1">Gained 0</span>
-        </div>
-        <div class="delta-badge" id="delta1" aria-live="polite"></div>
-        <div class="roll-badge" id="rollBadge1" aria-live="polite"></div>
-      </div>
+  <main class="table" id="table" aria-label="Life counter table"></main>
 
-      <div>
-        <div class="controls">
-          <button class="btn minus" type="button" data-player="1" data-change="-1">−</button>
-          <button class="btn plus" type="button" data-player="1" data-change="1">+</button>
-        </div>
-        <div class="quick-row">
-          <button class="quick-btn" type="button" data-player="1" data-change="-5">-5</button>
-          <button class="quick-btn" type="button" data-player="1" data-change="-10">-10</button>
-          <button class="quick-btn" type="button" data-player="1" data-change="5">+5</button>
-          <button class="quick-btn" type="button" data-player="1" data-change="10">+10</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="middle-controls">
-    <div class="center-line"></div>
-    <div class="center-actions">
-      <button class="history-btn" id="historyButton" type="button">📜 History</button>
-      <button class="coin-button" id="newGameButton" type="button" aria-label="Start new game">New Game</button>
-    </div>
-  </div>
-
-  <div class="modal" id="coinModal" aria-hidden="true">
+  <div class="modal" id="setupModal" aria-hidden="true">
     <div class="modal-panel">
-      <div class="modal-title">Coin Flip</div>
-      <div class="coin-result" id="coinResult">Heads</div>
-      <button class="coin-close" id="coinClose" type="button">Close</button>
+      <h2 class="modal-title">Game Setup</h2>
+      <form class="field-grid" id="setupForm">
+        <div class="field">
+          <label for="modeInput">Format</label>
+          <select id="modeInput">
+            <option value="duel">Regular</option>
+            <option value="commander">Commander</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="playersInput">Players</label>
+          <select id="playersInput">
+            <option value="2">2 Players</option>
+            <option value="3">3 Players</option>
+            <option value="4">4 Players</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="lifeInput">Starting Life</label>
+          <input id="lifeInput" type="number" min="1" max="999" step="1" />
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn primary" type="submit">Apply</button>
+          <button class="modal-btn" id="setupClose" type="button">Close</button>
+        </div>
+      </form>
     </div>
   </div>
 
   <div class="modal" id="historyModal" aria-hidden="true">
     <div class="modal-panel">
-      <div class="modal-title">Game History</div>
+      <h2 class="modal-title">Game History</h2>
       <div class="history-list" id="historyList"></div>
-      <div class="history-actions">
-        <button class="history-clear" id="historyClose" type="button">Close</button>
-        <button class="history-clear" id="historyClear" type="button">Clear History</button>
+      <div class="modal-actions">
+        <button class="modal-btn" id="historyClose" type="button">Close</button>
+        <button class="modal-btn" id="historyClear" type="button">Clear History</button>
       </div>
     </div>
   </div>
 
-  <section class="player bottom" aria-label="Player two panel">
-    <div class="card">
-      <div class="header">
-        <div class="name" contenteditable="true" spellcheck="false" id="name2">Player 2</div>
-        <div class="header-actions">
-          <button class="mini-btn" id="rollBottom" type="button">🎲 d6</button>
-          <button class="reset-btn" id="coinBottom" type="button">🪙 Flip</button>
-        </div>
-      </div>
-
-      <div class="life-wrap">
-        <div class="label">Life</div>
-        <div class="life" id="life2">20</div>
-        <div class="stats">
-          <span class="stat-pill" id="damage2">Damage 0</span>
-          <span class="stat-pill" id="gain2">Gained 0</span>
-        </div>
-        <div class="delta-badge" id="delta2" aria-live="polite"></div>
-        <div class="roll-badge" id="rollBadge2" aria-live="polite"></div>
-      </div>
-
-      <div>
-        <div class="controls">
-          <button class="btn minus" type="button" data-player="2" data-change="-1">−</button>
-          <button class="btn plus" type="button" data-player="2" data-change="1">+</button>
-        </div>
-        <div class="quick-row">
-          <button class="quick-btn" type="button" data-player="2" data-change="-5">-5</button>
-          <button class="quick-btn" type="button" data-player="2" data-change="-10">-10</button>
-          <button class="quick-btn" type="button" data-player="2" data-change="5">+5</button>
-          <button class="quick-btn" type="button" data-player="2" data-change="10">+10</button>
-        </div>
+  <div class="modal" id="choiceModal" aria-hidden="true">
+    <div class="modal-panel">
+      <h2 class="modal-title" id="choiceTitle">Choose</h2>
+      <div class="field-grid" id="choiceOptions"></div>
+      <div class="modal-actions">
+        <button class="modal-btn" id="choiceClose" type="button">Close</button>
       </div>
     </div>
-  </section>
+  </div>
+
+  <div class="modal" id="commanderModal" aria-hidden="true">
+    <div class="modal-panel">
+      <h2 class="modal-title">Commander Damage</h2>
+      <div class="damage-entry">
+        <div class="damage-source" id="commanderSourceLabel"></div>
+        <div class="field">
+          <label for="commanderTargetInput">Taking Damage</label>
+          <select id="commanderTargetInput"></select>
+        </div>
+        <div class="damage-preview">
+          <span class="pill" id="commanderCurrentTotal">Current 0</span>
+          <span class="pill warn" id="commanderPendingAmount">Change +0</span>
+          <span class="pill" id="commanderNewTotal">New 0</span>
+        </div>
+        <div class="damage-stepper">
+          <button class="life-btn minus" type="button" data-commander-step="-10">-10</button>
+          <button class="life-btn minus" type="button" data-commander-step="-5">-5</button>
+          <button class="life-btn minus" type="button" data-commander-step="-1">-1</button>
+          <button class="life-btn plus" type="button" data-commander-step="1">+1</button>
+          <button class="life-btn plus" type="button" data-commander-step="5">+5</button>
+          <button class="life-btn plus" type="button" data-commander-step="10">+10</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn primary" id="commanderConfirm" type="button">Confirm</button>
+        <button class="modal-btn" id="commanderClose" type="button">Close</button>
+      </div>
+    </div>
+  </div>
 
   <script>
-    const DEFAULT_STATE = {
-      life1: 20,
-      life2: 20,
-      name1: 'Player 1',
-      name2: 'Player 2',
+    const STATE_KEY = 'mtg-life-state-v3';
+    const HISTORY_KEY = 'mtg-game-history-v2';
+    const MAX_HISTORY = 75;
+    const MAX_UNDO = 40;
+
+    const defaults = {
+      settings: { mode: 'duel', playerCount: 2, startingLife: 20 },
       currentGameStartedAt: new Date().toISOString(),
-      stats: {
-        1: { damageTaken: 0, lifeGained: 0 },
-        2: { damageTaken: 0, lifeGained: 0 }
-      },
-      log: []
+      players: [],
+      log: [],
+      undoStack: []
     };
 
-    const STATE_KEY = 'mtg-life-state-v2';
-    const HISTORY_KEY = 'mtg-game-history-v1';
+    const els = {
+      table: document.getElementById('table'),
+      statusText: document.getElementById('statusText'),
+      setupButton: document.getElementById('setupButton'),
+      undoButton: document.getElementById('undoButton'),
+      historyButton: document.getElementById('historyButton'),
+      newGameButton: document.getElementById('newGameButton'),
+      setupModal: document.getElementById('setupModal'),
+      setupForm: document.getElementById('setupForm'),
+      setupClose: document.getElementById('setupClose'),
+      modeInput: document.getElementById('modeInput'),
+      playersInput: document.getElementById('playersInput'),
+      lifeInput: document.getElementById('lifeInput'),
+      historyModal: document.getElementById('historyModal'),
+      historyList: document.getElementById('historyList'),
+      historyClose: document.getElementById('historyClose'),
+      historyClear: document.getElementById('historyClear'),
+      choiceModal: document.getElementById('choiceModal'),
+      choiceTitle: document.getElementById('choiceTitle'),
+      choiceOptions: document.getElementById('choiceOptions'),
+      choiceClose: document.getElementById('choiceClose'),
+      commanderModal: document.getElementById('commanderModal'),
+      commanderSourceLabel: document.getElementById('commanderSourceLabel'),
+      commanderTargetInput: document.getElementById('commanderTargetInput'),
+      commanderCurrentTotal: document.getElementById('commanderCurrentTotal'),
+      commanderPendingAmount: document.getElementById('commanderPendingAmount'),
+      commanderNewTotal: document.getElementById('commanderNewTotal'),
+      commanderConfirm: document.getElementById('commanderConfirm'),
+      commanderClose: document.getElementById('commanderClose')
+    };
 
-    function cloneDefaultState() {
-      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    const deltaTimers = {};
+    const deltaTotals = {};
+    const rollTimers = {};
+    const rollAnimationTimers = {};
+    const rollIntervals = {};
+    const coinIntervals = {};
+    const commanderEntry = {
+      sourceId: null,
+      targetId: null,
+      amount: 0
+    };
+    const diceLayouts = {
+      1: [4],
+      2: [0, 8],
+      3: [0, 4, 8],
+      4: [0, 2, 6, 8],
+      5: [0, 2, 4, 6, 8],
+      6: [0, 2, 3, 5, 6, 8]
+    };
+
+    function makePlayer(index, startingLife, previous) {
+      return {
+        id: previous?.id || `p${index}`,
+        name: previous?.name || `Player ${index}`,
+        life: Number.isFinite(previous?.life) ? previous.life : startingLife,
+        stats: {
+          damageTaken: previous?.stats?.damageTaken || 0,
+          lifeGained: previous?.stats?.lifeGained || 0
+        },
+        poison: previous?.poison || 0,
+        commanderDamage: previous?.commanderDamage || {},
+        eliminated: Boolean(previous?.eliminated)
+      };
+    }
+
+    function createPlayers(count, startingLife, previous = []) {
+      return Array.from({ length: count }, (_, index) => makePlayer(index + 1, startingLife, previous[index]));
+    }
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function normalizeState(rawState) {
+      if (!rawState) {
+        const fresh = clone(defaults);
+        fresh.players = createPlayers(2, 20);
+        return fresh;
+      }
+
+      if (!rawState.players && ('life1' in rawState || 'life2' in rawState)) {
+        return {
+          settings: { mode: 'duel', playerCount: 2, startingLife: 20 },
+          currentGameStartedAt: rawState.currentGameStartedAt || new Date().toISOString(),
+          players: [
+            makePlayer(1, 20, { name: rawState.name1, life: rawState.life1, stats: rawState.stats?.[1] }),
+            makePlayer(2, 20, { name: rawState.name2, life: rawState.life2, stats: rawState.stats?.[2] })
+          ],
+          log: Array.isArray(rawState.log) ? rawState.log : [],
+          undoStack: []
+        };
+      }
+
+      const settings = {
+        ...defaults.settings,
+        ...(rawState.settings || {})
+      };
+      settings.playerCount = Math.min(4, Math.max(2, Number(settings.playerCount) || 2));
+      settings.startingLife = Math.min(999, Math.max(1, Number(settings.startingLife) || 20));
+      if (!['duel', 'commander'].includes(settings.mode)) settings.mode = 'duel';
+      if (settings.mode === 'commander' && settings.startingLife === 20) settings.startingLife = 40;
+
+      return {
+        settings,
+        currentGameStartedAt: rawState.currentGameStartedAt || new Date().toISOString(),
+        players: createPlayers(settings.playerCount, settings.startingLife, rawState.players || []),
+        log: Array.isArray(rawState.log) ? rawState.log : [],
+        undoStack: Array.isArray(rawState.undoStack) ? rawState.undoStack.slice(0, MAX_UNDO) : []
+      };
     }
 
     function loadState() {
       try {
-        const raw = localStorage.getItem(STATE_KEY);
-        if (!raw) return cloneDefaultState();
-        const parsed = JSON.parse(raw);
-        return {
-          ...cloneDefaultState(),
-          ...parsed,
-          stats: {
-            1: { ...DEFAULT_STATE.stats[1], ...(parsed.stats?.[1] || {}) },
-            2: { ...DEFAULT_STATE.stats[2], ...(parsed.stats?.[2] || {}) }
-          },
-          log: Array.isArray(parsed.log) ? parsed.log : []
-        };
+        return normalizeState(JSON.parse(localStorage.getItem(STATE_KEY)));
       } catch {
-        return cloneDefaultState();
+        return normalizeState(null);
       }
     }
 
     function loadHistory() {
-      try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
-      catch { return []; }
+      try {
+        const parsed = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
     }
 
-    const state = loadState();
+    let state = loadState();
     let history = loadHistory();
 
-    const els = {
-      life1: document.getElementById('life1'), life2: document.getElementById('life2'),
-      name1: document.getElementById('name1'), name2: document.getElementById('name2'),
-      damage1: document.getElementById('damage1'), damage2: document.getElementById('damage2'),
-      gain1: document.getElementById('gain1'), gain2: document.getElementById('gain2'),
-      newGameButton: document.getElementById('newGameButton'), coinTop: document.getElementById('coinTop'), coinBottom: document.getElementById('coinBottom'), coinModal: document.getElementById('coinModal'),
-      coinResult: document.getElementById('coinResult'), coinClose: document.getElementById('coinClose'),
-      historyButton: document.getElementById('historyButton'), historyModal: document.getElementById('historyModal'),
-      historyList: document.getElementById('historyList'), historyClose: document.getElementById('historyClose'), historyClear: document.getElementById('historyClear'),
-      delta1: document.getElementById('delta1'), delta2: document.getElementById('delta2'),
-      rollTop: document.getElementById('rollTop'), rollBottom: document.getElementById('rollBottom'),
-      rollBadge1: document.getElementById('rollBadge1'), rollBadge2: document.getElementById('rollBadge2')
-    };
-
-    const deltaTimers = { 1: null, 2: null };
-    const deltaTotals = { 1: 0, 2: 0 };
-    const pendingLifeChanges = { 1: null, 2: null };
-    const rollTimers = { 1: null, 2: null };
-    const rollAnimationTimers = { 1: null, 2: null };
-
-    const diceLayouts = {
-      1: [4], 2: [0, 8], 3: [0, 4, 8],
-      4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8]
-    };
-
-    function save() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
-    function saveHistory() { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }
-
-    function render() {
-      els.life1.textContent = String(state.life1);
-      els.life2.textContent = String(state.life2);
-      els.name1.textContent = state.name1;
-      els.name2.textContent = state.name2;
-      els.damage1.textContent = `Damage ${state.stats[1].damageTaken}`;
-      els.damage2.textContent = `Damage ${state.stats[2].damageTaken}`;
-      els.gain1.textContent = `Gained ${state.stats[1].lifeGained}`;
-      els.gain2.textContent = `Gained ${state.stats[2].lifeGained}`;
+    function save() {
+      localStorage.setItem(STATE_KEY, JSON.stringify(state));
     }
 
-    function animateShow(element) {
-      element.classList.remove('show');
-      requestAnimationFrame(() => element.classList.add('show'));
+    function saveHistory() {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     }
 
-    function commitPendingLifeChange(player) {
-      const pending = pendingLifeChanges[player];
-      if (!pending || pending.amount === 0) {
-        pendingLifeChanges[player] = null;
-        return;
-      }
+    function snapshot() {
+      return clone({
+        settings: state.settings,
+        currentGameStartedAt: state.currentGameStartedAt,
+        players: state.players,
+        log: state.log
+      });
+    }
 
-      if (pending.amount < 0) state.stats[player].damageTaken += Math.abs(pending.amount);
-      if (pending.amount > 0) state.stats[player].lifeGained += pending.amount;
+    function pushUndo(label) {
+      state.undoStack.unshift({ label, at: new Date().toISOString(), snapshot: snapshot() });
+      state.undoStack = state.undoStack.slice(0, MAX_UNDO);
+    }
 
+    function undoLast() {
+      const entry = state.undoStack.shift();
+      if (!entry) return;
+      const keepUndo = state.undoStack;
+      state = normalizeState(entry.snapshot);
+      state.undoStack = keepUndo;
+      render();
+      save();
+    }
+
+    function openModal(modal) {
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal(modal) {
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      }[char]));
+    }
+
+    function findPlayer(id) {
+      return state.players.find((player) => player.id === id);
+    }
+
+    function formatSigned(value) {
+      return value > 0 ? `+${value}` : String(value);
+    }
+
+    function describeSettings() {
+      const mode = state.settings.mode === 'commander' ? 'Commander' : 'Regular';
+      return `${mode} · ${state.players.length} players · ${state.settings.startingLife} life`;
+    }
+
+    function logAction(type, message, details = {}) {
       state.log.push({
-        player,
-        playerName: state[`name${player}`],
-        amount: pending.amount,
-        previousLife: pending.previousLife,
-        newLife: pending.newLife,
+        id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+        type,
+        message,
+        details,
         time: new Date().toISOString()
       });
-
-      pendingLifeChanges[player] = null;
-      render();
-      save();
     }
 
-    function showDelta(player, amount) {
-      const badge = els[`delta${player}`];
-      deltaTotals[player] += amount;
-      const total = deltaTotals[player];
-      badge.textContent = total === 0 ? '0' : `${total > 0 ? '+' : ''}${total}`;
-      badge.classList.remove('positive', 'negative', 'neutral');
-      if (total > 0) badge.classList.add('positive');
-      else if (total < 0) badge.classList.add('negative');
+    function showDelta(playerId, amount, label) {
+      const badge = document.querySelector(`[data-delta-for="${playerId}"]`);
+      if (!badge) return;
+      badge.textContent = label || formatSigned(amount);
+      badge.className = 'delta-badge show';
+      if (amount > 0) badge.classList.add('positive');
+      else if (amount < 0) badge.classList.add('negative');
       else badge.classList.add('neutral');
-      animateShow(badge);
-      clearTimeout(deltaTimers[player]);
-      deltaTimers[player] = setTimeout(() => {
-        badge.classList.remove('show');
-        commitPendingLifeChange(player);
-        deltaTotals[player] = 0;
-      }, 2000);
+      clearTimeout(deltaTimers[playerId]);
+      deltaTimers[playerId] = setTimeout(() => badge.classList.remove('show'), 1400);
     }
 
-    function showReset(player) {
-      const badge = els[`delta${player}`];
-      deltaTotals[player] = 0;
-      badge.textContent = 'New Game';
-      badge.classList.remove('positive', 'negative', 'neutral');
-      badge.classList.add('neutral');
-      animateShow(badge);
-      clearTimeout(deltaTimers[player]);
-      deltaTimers[player] = setTimeout(() => badge.classList.remove('show'), 2000);
-    }
-
-    function changeLife(player, amount) {
-      const key = `life${player}`;
-      const previousLife = pendingLifeChanges[player]?.previousLife ?? state[key];
-
-      state[key] += amount;
-
-      pendingLifeChanges[player] = {
-        player,
-        amount: (pendingLifeChanges[player]?.amount || 0) + amount,
-        previousLife,
-        newLife: state[key]
-      };
-
-      render();
-      save();
-      showDelta(player, amount);
-      if (navigator.vibrate) navigator.vibrate(10);
-    }
-
-    function makeGameRecord() {
-      const endedAt = new Date().toISOString();
-      return {
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-        startedAt: state.currentGameStartedAt,
-        endedAt,
-        players: {
-          1: { name: state.name1, endingLife: state.life1, damageTaken: state.stats[1].damageTaken, lifeGained: state.stats[1].lifeGained },
-          2: { name: state.name2, endingLife: state.life2, damageTaken: state.stats[2].damageTaken, lifeGained: state.stats[2].lifeGained }
-        },
-        log: [...state.log]
-      };
-    }
-
-    function startNewGame(triggerPlayer) {
-      commitPendingLifeChange(1);
-      commitPendingLifeChange(2);
-
-      const hasActivity = state.life1 !== 20 || state.life2 !== 20 || state.stats[1].damageTaken || state.stats[1].lifeGained || state.stats[2].damageTaken || state.stats[2].lifeGained || state.log.length;
-      if (hasActivity) {
-        history.unshift(makeGameRecord());
-        history = history.slice(0, 50);
-        saveHistory();
-      }
-
-      state.life1 = 20;
-      state.life2 = 20;
-      state.stats = { 1: { damageTaken: 0, lifeGained: 0 }, 2: { damageTaken: 0, lifeGained: 0 } };
-      state.log = [];
-      state.currentGameStartedAt = new Date().toISOString();
-      render(); save(); showReset(triggerPlayer);
+    function showAccumulatedLifeDelta(playerId, amount) {
+      deltaTotals[playerId] = (deltaTotals[playerId] || 0) + amount;
+      showDelta(playerId, deltaTotals[playerId]);
+      clearTimeout(deltaTimers[playerId]);
+      deltaTimers[playerId] = setTimeout(() => {
+        const badge = document.querySelector(`[data-delta-for="${playerId}"]`);
+        if (badge) badge.classList.remove('show');
+        deltaTotals[playerId] = 0;
+      }, 3000);
     }
 
     function renderDieFace(value) {
       const active = new Set(diceLayouts[value] || diceLayouts[1]);
-      return `<div class="die-face" aria-label="Rolled ${value}">${Array.from({ length: 9 }, (_, i) => `<span class="pip ${active.has(i) ? 'on' : ''}"></span>`).join('')}</div>`;
+      return `<div class="die-face" aria-label="Rolled ${value}">
+        ${Array.from({ length: 9 }, (_, index) => `<span class="pip ${active.has(index) ? 'on' : ''}"></span>`).join('')}
+      </div>`;
     }
 
-    function showRoll(player, value) {
-      const badge = els[`rollBadge${player}`];
-      clearTimeout(rollTimers[player]); clearTimeout(rollAnimationTimers[player]);
-      badge.classList.remove('show', 'rolling');
+    function showRoll(playerId, value) {
+      const badge = document.querySelector(`[data-roll-for="${playerId}"]`);
+      if (!badge) return;
+      clearTimeout(rollTimers[playerId]);
+      clearTimeout(rollAnimationTimers[playerId]);
+      clearInterval(rollIntervals[playerId]);
+      clearInterval(coinIntervals[playerId]);
+      badge.classList.remove('show', 'rolling', 'flipping', 'coin-result');
       const spinValues = [1, 3, 5, 2, 4, 6];
       let index = 0;
       badge.innerHTML = renderDieFace(spinValues[0]);
       badge.classList.add('rolling');
-      const interval = setInterval(() => {
+      rollIntervals[playerId] = setInterval(() => {
         index = (index + 1) % spinValues.length;
         badge.innerHTML = renderDieFace(spinValues[index]);
       }, 90);
-      rollAnimationTimers[player] = setTimeout(() => {
-        clearInterval(interval);
+      rollAnimationTimers[playerId] = setTimeout(() => {
+        clearInterval(rollIntervals[playerId]);
         badge.innerHTML = renderDieFace(value);
         badge.classList.remove('rolling');
-        animateShow(badge);
-        rollTimers[player] = setTimeout(() => badge.classList.remove('show'), 2000);
+        badge.classList.add('show');
+        rollTimers[playerId] = setTimeout(() => badge.classList.remove('show'), 2000);
       }, 700);
     }
 
-    function rollDie(player) {
+    function showChoiceResult(playerId, value) {
+      const badge = document.querySelector(`[data-roll-for="${playerId}"]`);
+      if (!badge) return;
+      clearTimeout(rollTimers[playerId]);
+      clearTimeout(rollAnimationTimers[playerId]);
+      clearInterval(rollIntervals[playerId]);
+      clearInterval(coinIntervals[playerId]);
+      badge.classList.remove('rolling', 'flipping', 'coin-result');
+      badge.textContent = value;
+      badge.classList.add('show');
+      rollTimers[playerId] = setTimeout(() => badge.classList.remove('show'), 2000);
+    }
+
+    function renderCoinFace(value) {
+      return `<div class="coin-face" aria-label="${value}">${value === 'Heads' ? 'H' : 'T'}</div>`;
+    }
+
+    function showCoinFlip(playerId, value) {
+      const badge = document.querySelector(`[data-roll-for="${playerId}"]`);
+      if (!badge) return;
+      clearTimeout(rollTimers[playerId]);
+      clearTimeout(rollAnimationTimers[playerId]);
+      clearInterval(rollIntervals[playerId]);
+      clearInterval(coinIntervals[playerId]);
+      badge.classList.remove('show', 'rolling', 'flipping', 'coin-result');
+      const faces = ['Heads', 'Tails'];
+      let index = 0;
+      badge.innerHTML = renderCoinFace(faces[index]);
+      badge.classList.add('flipping');
+      coinIntervals[playerId] = setInterval(() => {
+        index = (index + 1) % faces.length;
+        badge.innerHTML = renderCoinFace(faces[index]);
+      }, 90);
+      rollAnimationTimers[playerId] = setTimeout(() => {
+        clearInterval(coinIntervals[playerId]);
+        badge.innerHTML = renderCoinFace(value);
+        badge.classList.remove('flipping');
+        badge.classList.add('show', 'coin-result');
+        rollTimers[playerId] = setTimeout(() => badge.classList.remove('show'), 2000);
+      }, 900);
+    }
+
+    function vibrate(pattern) {
+      if (navigator.vibrate) navigator.vibrate(pattern);
+    }
+
+    function changeLife(playerId, amount) {
+      const player = findPlayer(playerId);
+      if (!player) return;
+      pushUndo(`${player.name} life ${formatSigned(amount)}`);
+      const previousLife = player.life;
+      player.life += amount;
+      if (amount < 0) player.stats.damageTaken += Math.abs(amount);
+      if (amount > 0) player.stats.lifeGained += amount;
+      logAction('life', `${player.name} ${previousLife} to ${player.life}`, {
+        playerId,
+        amount,
+        previousLife,
+        newLife: player.life
+      });
+      render();
+      save();
+      showAccumulatedLifeDelta(playerId, amount);
+      vibrate(10);
+    }
+
+    function changePoison(playerId, amount) {
+      const player = findPlayer(playerId);
+      if (!player) return;
+      pushUndo(`${player.name} poison ${formatSigned(amount)}`);
+      player.poison = Math.max(0, player.poison + amount);
+      logAction('poison', `${player.name} poison ${formatSigned(amount)}`, { playerId, amount, poison: player.poison });
+      render();
+      save();
+      showDelta(playerId, amount, `${player.poison} poison`);
+      vibrate(10);
+    }
+
+    function changeCommanderDamage(targetId, sourceId, amount) {
+      const target = findPlayer(targetId);
+      const source = findPlayer(sourceId);
+      if (!target || !source || targetId === sourceId) return;
+      pushUndo(`${source.name} commander damage to ${target.name}`);
+      target.commanderDamage[sourceId] = Math.max(0, (target.commanderDamage[sourceId] || 0) + amount);
+      const total = target.commanderDamage[sourceId];
+      logAction('commander', `${source.name} dealt commander damage to ${target.name}`, {
+        targetId,
+        sourceId,
+        amount,
+        total
+      });
+      render();
+      save();
+      showDelta(targetId, amount, `${total} cmdr`);
+      vibrate(10);
+    }
+
+    function toggleEliminated(playerId) {
+      const player = findPlayer(playerId);
+      if (!player) return;
+      pushUndo(`${player.name} eliminated`);
+      player.eliminated = !player.eliminated;
+      logAction('eliminated', `${player.name} ${player.eliminated ? 'eliminated' : 'returned'}`, { playerId, eliminated: player.eliminated });
+      render();
+      save();
+    }
+
+    function rollDie(playerId) {
+      const player = findPlayer(playerId);
+      if (!player) return;
       const value = Math.floor(Math.random() * 6) + 1;
-      showRoll(player, value);
-      if (navigator.vibrate) navigator.vibrate([15, 20, 15]);
-      return value;
+      logAction('roll', `${player.name} rolled ${value}`, { playerId, value });
+      showRoll(playerId, value);
+      save();
+      vibrate([15, 20, 15]);
     }
 
-    function flipCoin(player) {
-      const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
-      const playerName = state[`name${player}`] || `Player ${player}`;
-      els.coinResult.textContent = `${playerName}: ${result}`;
-      els.coinModal.classList.add('show');
-      els.coinModal.setAttribute('aria-hidden', 'false');
-      if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
-      return result;
+    function flipCoin(playerId) {
+      const player = findPlayer(playerId);
+      if (!player) return;
+      const value = Math.random() < 0.5 ? 'Heads' : 'Tails';
+      logAction('coin', `${player.name} flipped ${value}`, { playerId, value });
+      showCoinFlip(playerId, value);
+      save();
+      vibrate([18, 24, 18]);
     }
 
-    function closeModal(modal) { modal.classList.remove('show'); modal.setAttribute('aria-hidden', 'true'); }
-    function openModal(modal) { modal.classList.add('show'); modal.setAttribute('aria-hidden', 'false'); }
+    function hasActivity() {
+      return state.players.some((player) =>
+        player.life !== state.settings.startingLife ||
+        player.stats.damageTaken ||
+        player.stats.lifeGained ||
+        player.poison ||
+        Object.values(player.commanderDamage || {}).some(Boolean) ||
+        player.eliminated
+      ) || state.log.length;
+    }
+
+    function makeGameRecord() {
+      return {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        settings: clone(state.settings),
+        startedAt: state.currentGameStartedAt,
+        endedAt: new Date().toISOString(),
+        players: clone(state.players),
+        log: clone(state.log)
+      };
+    }
+
+    function resetForNewGame(preserveNames = true) {
+      const previous = preserveNames ? state.players.map((player) => ({ id: player.id, name: player.name })) : [];
+      state.players = createPlayers(state.settings.playerCount, state.settings.startingLife, previous);
+      state.currentGameStartedAt = new Date().toISOString();
+      state.log = [];
+      state.undoStack = [];
+    }
+
+    function startNewGame() {
+      if (hasActivity()) {
+        history.unshift(makeGameRecord());
+        history = history.slice(0, MAX_HISTORY);
+        saveHistory();
+      }
+      resetForNewGame(true);
+      render();
+      save();
+    }
+
+    function applySetup(event) {
+      event.preventDefault();
+      const nextSettings = {
+        mode: els.modeInput.value,
+        playerCount: Number(els.playersInput.value),
+        startingLife: Math.min(999, Math.max(1, Number(els.lifeInput.value) || 20))
+      };
+      pushUndo('setup change');
+      state.settings = nextSettings;
+      state.players = createPlayers(nextSettings.playerCount, nextSettings.startingLife, state.players);
+      state.players.forEach((player) => {
+        player.commanderDamage = Object.fromEntries(
+          Object.entries(player.commanderDamage || {}).filter(([id]) => state.players.some((other) => other.id === id))
+        );
+      });
+      logAction('setup', `Setup changed to ${nextSettings.mode}, ${nextSettings.playerCount} players, ${nextSettings.startingLife} life`);
+      closeModal(els.setupModal);
+      render();
+      save();
+    }
+
+    function openSetup() {
+      els.modeInput.value = state.settings.mode;
+      els.playersInput.value = String(state.settings.playerCount);
+      els.lifeInput.value = String(state.settings.startingLife);
+      openModal(els.setupModal);
+    }
+
+    function openChoice(title, options) {
+      els.choiceTitle.textContent = title;
+      els.choiceOptions.innerHTML = options.map((option) => (
+        `<button class="modal-btn primary" type="button" data-choice="${escapeHtml(option.value)}">${escapeHtml(option.label)}</button>`
+      )).join('');
+      els.choiceOptions.querySelectorAll('[data-choice]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const option = options.find((item) => item.value === button.dataset.choice);
+          if (option) option.run();
+          closeModal(els.choiceModal);
+        });
+      });
+      openModal(els.choiceModal);
+    }
+
+    function getCommanderTargetOptions(sourceId) {
+      return state.players.filter((player) => player.id !== sourceId);
+    }
+
+    function getCommanderEntryTotal() {
+      const target = findPlayer(commanderEntry.targetId);
+      if (!target || !commanderEntry.sourceId) return 0;
+      return target.commanderDamage?.[commanderEntry.sourceId] || 0;
+    }
+
+    function updateCommanderDamagePreview() {
+      const current = getCommanderEntryTotal();
+      const next = Math.max(0, current + commanderEntry.amount);
+      els.commanderCurrentTotal.textContent = `Current ${current}`;
+      els.commanderPendingAmount.textContent = `Change ${formatSigned(commanderEntry.amount)}`;
+      els.commanderNewTotal.textContent = `New ${next}`;
+      els.commanderNewTotal.classList.toggle('danger', next >= 21);
+      els.commanderNewTotal.classList.toggle('warn', next >= 15 && next < 21);
+      els.commanderConfirm.disabled = commanderEntry.amount === 0;
+    }
+
+    function openCommanderDamage(sourceId) {
+      const source = findPlayer(sourceId);
+      if (!source) return;
+      const targets = getCommanderTargetOptions(sourceId);
+      commanderEntry.sourceId = sourceId;
+      commanderEntry.targetId = targets[0]?.id || null;
+      commanderEntry.amount = 0;
+      els.commanderSourceLabel.textContent = `${source.name} is dealing commander damage`;
+      els.commanderTargetInput.innerHTML = targets.map((target) => (
+        `<option value="${escapeHtml(target.id)}">${escapeHtml(target.name)}</option>`
+      )).join('');
+      updateCommanderDamagePreview();
+      openModal(els.commanderModal);
+    }
+
+    function adjustCommanderEntry(amount) {
+      commanderEntry.amount += amount;
+      const current = getCommanderEntryTotal();
+      if (current + commanderEntry.amount < 0) commanderEntry.amount = -current;
+      updateCommanderDamagePreview();
+    }
+
+    function confirmCommanderDamage() {
+      if (!commanderEntry.sourceId || !commanderEntry.targetId || commanderEntry.amount === 0) return;
+      changeCommanderDamage(commanderEntry.targetId, commanderEntry.sourceId, commanderEntry.amount);
+      commanderEntry.sourceId = null;
+      commanderEntry.targetId = null;
+      commanderEntry.amount = 0;
+      closeModal(els.commanderModal);
+    }
+
+    function renderCommanderSummary(player) {
+      if (state.settings.mode !== 'commander') return '';
+      const sources = state.players.filter((source) => source.id !== player.id);
+      return `
+        <div class="commander-row">
+          ${sources.map((source) => {
+            const value = player.commanderDamage?.[source.id] || 0;
+            const cls = value >= 21 ? 'danger' : value >= 15 ? 'warn' : '';
+            return `<span class="pill ${cls}">${escapeHtml(source.name)} ${value}</span>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderPlayer(player) {
+      const eliminated = player.eliminated ? '<span class="pill danger">Eliminated</span>' : '';
+      const counterControls = `
+        <div class="counter-row">
+          <button class="chip-btn" type="button" data-action="poison" data-player="${player.id}" data-amount="1">Poison +</button>
+          <button class="chip-btn" type="button" data-action="poison" data-player="${player.id}" data-amount="-1">Poison -</button>
+          ${state.settings.mode === 'commander' ? `
+            <button class="chip-btn" type="button" data-action="commander" data-player="${player.id}">Cmdr DMG</button>
+            <button class="chip-btn" type="button" data-action="eliminate" data-player="${player.id}">${player.eliminated ? 'Return' : 'Out'}</button>
+          ` : ''}
+        </div>
+      `;
+
+      return `
+        <article class="player-card ${player.eliminated ? 'is-eliminated' : ''}">
+          <div class="player-head">
+            <div class="name" contenteditable="true" spellcheck="false" data-name-for="${player.id}">${escapeHtml(player.name)}</div>
+            <div class="head-actions">
+              <button class="chip-btn" type="button" data-action="roll" data-player="${player.id}">d6</button>
+              <button class="chip-btn" type="button" data-action="coin" data-player="${player.id}">Flip</button>
+            </div>
+          </div>
+          <div class="life-zone">
+            <div class="life-label">Life</div>
+            <div class="life" aria-live="polite">${player.life}</div>
+            <div class="stat-row">
+              <span class="pill danger">Damage ${player.stats.damageTaken}</span>
+              <span class="pill good">Gained ${player.stats.lifeGained}</span>
+              <span class="pill warn">Poison ${player.poison}</span>
+              ${eliminated}
+            </div>
+            ${renderCommanderSummary(player)}
+            <div class="delta-badge" data-delta-for="${player.id}" aria-live="polite"></div>
+            <div class="roll-badge" data-roll-for="${player.id}" aria-live="polite"></div>
+          </div>
+          <div>
+            <div class="controls">
+              <button class="life-btn minus" type="button" data-action="life" data-player="${player.id}" data-amount="-10">-10</button>
+              <button class="life-btn minus" type="button" data-action="life" data-player="${player.id}" data-amount="-5">-5</button>
+              <button class="life-btn minus" type="button" data-action="life" data-player="${player.id}" data-amount="-1">-1</button>
+              <button class="life-btn plus" type="button" data-action="life" data-player="${player.id}" data-amount="1">+1</button>
+              <button class="life-btn plus" type="button" data-action="life" data-player="${player.id}" data-amount="5">+5</button>
+              <button class="life-btn plus" type="button" data-action="life" data-player="${player.id}" data-amount="10">+10</button>
+            </div>
+            ${counterControls}
+          </div>
+        </article>
+      `;
+    }
+
+    function render() {
+      els.table.className = `table ${state.players.length === 2 ? 'duel' : 'multiplayer'}`;
+      document.body.classList.toggle('is-multiplayer', state.players.length > 2);
+      els.table.innerHTML = state.players.map(renderPlayer).join('');
+      els.statusText.textContent = describeSettings();
+      els.undoButton.disabled = !state.undoStack.length;
+      bindNameEditors();
+    }
+
+    function bindNameEditors() {
+      els.table.querySelectorAll('[data-name-for]').forEach((el) => {
+        el.addEventListener('blur', () => {
+          const player = findPlayer(el.dataset.nameFor);
+          if (!player) return;
+          const nextName = el.textContent.trim() || player.name;
+          if (nextName === player.name) {
+            el.textContent = player.name;
+            return;
+          }
+          pushUndo(`rename ${player.name}`);
+          player.name = nextName;
+          logAction('name', `Renamed player to ${nextName}`, { playerId: player.id });
+          render();
+          save();
+        });
+        el.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            el.blur();
+          }
+        });
+      });
+    }
 
     function formatShortDate(value) {
       return new Date(value).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
     }
 
-    function buildLogHtml(log) {
-      if (!log || !log.length) return '<div class="game-log">No resolved life changes recorded yet.</div>';
-
-      return `<div class="game-log">
-        ${log.map((entry) => {
-          const sign = entry.amount > 0 ? '+' : '';
-          const cls = entry.amount > 0 ? 'positive' : 'negative';
-          return `<div class="log-entry">
-            <span>${entry.playerName || `Player ${entry.player}`} ${entry.previousLife} → ${entry.newLife}</span>
-            <span class="${cls}">${sign}${entry.amount}</span>
-          </div>`;
-        }).join('')}
-      </div>`;
+    function renderLog(log) {
+      if (!log.length) return '<div class="empty-note">No actions recorded yet.</div>';
+      return `<div class="log-list">${log.slice(-18).reverse().map((entry) => `
+        <div class="log-entry">
+          <span>${escapeHtml(entry.message)}</span>
+          <span>${formatShortDate(entry.time)}</span>
+        </div>
+      `).join('')}</div>`;
     }
 
-    function makeCurrentGamePreview() {
-      const pendingLog = [...state.log];
-
-      [1, 2].forEach((player) => {
-        const pending = pendingLifeChanges[player];
-        if (pending && pending.amount !== 0) {
-          pendingLog.push({
-            player,
-            playerName: state[`name${player}`],
-            amount: pending.amount,
-            previousLife: pending.previousLife,
-            newLife: pending.newLife,
-            time: new Date().toISOString()
-          });
-        }
-      });
-
-      return {
-        current: true,
-        startedAt: state.currentGameStartedAt,
-        endedAt: new Date().toISOString(),
-        players: {
-          1: { name: state.name1, endingLife: state.life1, damageTaken: state.stats[1].damageTaken, lifeGained: state.stats[1].lifeGained },
-          2: { name: state.name2, endingLife: state.life2, damageTaken: state.stats[2].damageTaken, lifeGained: state.stats[2].lifeGained }
-        },
-        log: pendingLog
-      };
-    }
-
-    function renderGameCard(game, title) {
+    function renderHistoryCard(game, title) {
+      const players = game.players.map((player) => `${escapeHtml(player.name)} ${player.life}`).join(' · ');
+      const mode = game.settings?.mode === 'commander' ? 'Commander' : 'Regular';
       return `
         <div class="history-item">
-          <div class="history-summary">
-            <strong>${title}: ${game.players[1].name} vs ${game.players[2].name}</strong>
-            <span class="expand-hint">Tap to expand</span>
-          </div>
+          <button type="button" data-action="expand-history">
+            ${escapeHtml(title)}: ${players}
+          </button>
           <div class="history-details">
-            ${game.players[1].name}: ${game.current ? 'currently' : 'ended'} at ${game.players[1].endingLife}, took ${game.players[1].damageTaken}, gained ${game.players[1].lifeGained}<br>
-            ${game.players[2].name}: ${game.current ? 'currently' : 'ended'} at ${game.players[2].endingLife}, took ${game.players[2].damageTaken}, gained ${game.players[2].lifeGained}
-            <div class="history-meta">${game.current ? 'Started' : formatShortDate(game.startedAt) + ' →'} ${game.current ? formatShortDate(game.startedAt) : formatShortDate(game.endedAt)}</div>
-            ${buildLogHtml(game.log)}
+            ${mode} · ${game.players.length} players · ${formatShortDate(game.startedAt)} to ${formatShortDate(game.endedAt)}
+            ${renderLog(game.log || [])}
           </div>
         </div>
       `;
     }
 
     function renderHistory() {
-      const currentCard = renderGameCard(makeCurrentGamePreview(), 'Current Game');
+      const current = {
+        settings: state.settings,
+        startedAt: state.currentGameStartedAt,
+        endedAt: new Date().toISOString(),
+        players: state.players,
+        log: state.log
+      };
+      const completed = history.length
+        ? history.map((game, index) => renderHistoryCard(game, `Game ${history.length - index}`)).join('')
+        : '<div class="history-item"><strong>No completed games yet</strong><div class="history-details">Press New Game after tracking a game to save it here.</div></div>';
 
-      if (!history.length) {
-        els.historyList.innerHTML = currentCard + '<div class="history-item"><div class="history-summary"><strong>No completed games yet</strong></div><div class="history-details">Press New Game after tracking life changes to save one.</div></div>';
-        bindHistoryExpanders();
-        return;
-      }
-
-      els.historyList.innerHTML = currentCard + history.map((game, index) => renderGameCard(game, `Game ${history.length - index}`)).join('');
-      bindHistoryExpanders();
-    }
-
-    function bindHistoryExpanders() {
-      els.historyList.querySelectorAll('.history-item').forEach((item) => {
-        item.addEventListener('click', () => item.classList.toggle('expanded'));
+      els.historyList.innerHTML = renderHistoryCard(current, 'Current Game') + completed;
+      els.historyList.querySelectorAll('[data-action="expand-history"]').forEach((button) => {
+        button.addEventListener('click', () => button.closest('.history-item').classList.toggle('expanded'));
       });
     }
 
     function bindEvents() {
-      document.querySelectorAll('[data-player][data-change]').forEach((button) => {
-        button.addEventListener('click', () => changeLife(Number(button.dataset.player), Number(button.dataset.change)));
-      });
-      els.newGameButton.addEventListener('click', () => startNewGame(2));
-
-      [els.name1, els.name2].forEach((el, index) => {
-        el.addEventListener('blur', () => {
-          state[`name${index + 1}`] = el.textContent.trim() || `Player ${index + 1}`;
-          render(); save();
-        });
-        el.addEventListener('keydown', (event) => {
-          if (event.key === 'Enter') { event.preventDefault(); el.blur(); }
-        });
+      els.table.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const playerId = button.dataset.player;
+        const amount = Number(button.dataset.amount || 0);
+        if (button.dataset.action === 'life') changeLife(playerId, amount);
+        if (button.dataset.action === 'poison') changePoison(playerId, amount);
+        if (button.dataset.action === 'commander') openCommanderDamage(playerId);
+        if (button.dataset.action === 'eliminate') toggleEliminated(playerId);
+        if (button.dataset.action === 'roll') rollDie(playerId);
+        if (button.dataset.action === 'coin') flipCoin(playerId);
       });
 
-      els.coinTop.addEventListener('click', () => flipCoin(1));
-      els.coinBottom.addEventListener('click', () => flipCoin(2));
-      els.coinClose.addEventListener('click', () => closeModal(els.coinModal));
-      els.coinModal.addEventListener('click', (event) => { if (event.target === els.coinModal) closeModal(els.coinModal); });
+      els.setupButton.addEventListener('click', openSetup);
+      els.setupForm.addEventListener('submit', applySetup);
+      els.setupClose.addEventListener('click', () => closeModal(els.setupModal));
+      els.setupModal.addEventListener('click', (event) => { if (event.target === els.setupModal) closeModal(els.setupModal); });
 
-      els.historyButton.addEventListener('click', () => { renderHistory(); openModal(els.historyModal); });
+      els.modeInput.addEventListener('change', () => {
+        if (els.modeInput.value === 'commander') {
+          els.lifeInput.value = els.lifeInput.value === '20' ? '40' : els.lifeInput.value;
+          els.playersInput.value = Number(els.playersInput.value) < 3 ? '4' : els.playersInput.value;
+        } else {
+          els.lifeInput.value = '20';
+          els.playersInput.value = '2';
+        }
+      });
+
+      els.undoButton.addEventListener('click', undoLast);
+      els.newGameButton.addEventListener('click', startNewGame);
+
+      els.historyButton.addEventListener('click', () => {
+        renderHistory();
+        openModal(els.historyModal);
+      });
       els.historyClose.addEventListener('click', () => closeModal(els.historyModal));
       els.historyModal.addEventListener('click', (event) => { if (event.target === els.historyModal) closeModal(els.historyModal); });
       els.historyClear.addEventListener('click', () => {
@@ -744,19 +1411,39 @@
         renderHistory();
       });
 
-      els.rollTop.addEventListener('click', () => rollDie(1));
-      els.rollBottom.addEventListener('click', () => rollDie(2));
+      els.choiceClose.addEventListener('click', () => closeModal(els.choiceModal));
+      els.choiceModal.addEventListener('click', (event) => { if (event.target === els.choiceModal) closeModal(els.choiceModal); });
+
+      els.commanderTargetInput.addEventListener('change', () => {
+        commanderEntry.targetId = els.commanderTargetInput.value;
+        commanderEntry.amount = 0;
+        updateCommanderDamagePreview();
+      });
+      els.commanderModal.querySelectorAll('[data-commander-step]').forEach((button) => {
+        button.addEventListener('click', () => adjustCommanderEntry(Number(button.dataset.commanderStep)));
+      });
+      els.commanderConfirm.addEventListener('click', confirmCommanderDamage);
+      els.commanderClose.addEventListener('click', () => closeModal(els.commanderModal));
+      els.commanderModal.addEventListener('click', (event) => { if (event.target === els.commanderModal) closeModal(els.commanderModal); });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          [els.setupModal, els.historyModal, els.choiceModal, els.commanderModal].forEach(closeModal);
+        }
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') {
+          event.preventDefault();
+          undoLast();
+        }
+      });
     }
 
     function runSelfTests() {
-      console.assert(Object.keys(diceLayouts).length === 6, 'Expected 6 dice layouts');
-      console.assert((diceLayouts[1] || []).length === 1, '1 should have one pip');
-      console.assert((diceLayouts[6] || []).length === 6, '6 should have six pips');
-      console.assert(renderDieFace(5).includes('die-face'), 'renderDieFace should return die markup');
-      console.assert(typeof showDelta === 'function', 'showDelta should exist');
+      console.assert(state.players.length >= 2, 'Expected at least two players');
+      console.assert(typeof changeLife === 'function', 'Expected changeLife function');
+      console.assert(typeof undoLast === 'function', 'Expected undo function');
+      console.assert(Array.isArray(state.undoStack), 'Undo stack should be an array');
       console.assert(Array.isArray(history), 'History should be an array');
-      console.assert(Array.isArray(state.log), 'Current game log should be an array');
-      console.assert(typeof commitPendingLifeChange === 'function', 'Pending changes should resolve into the log');
+      console.assert(escapeHtml('<x>') === '&lt;x&gt;', 'escapeHtml should encode angle brackets');
     }
 
     render();
@@ -766,5 +1453,3 @@
   </script>
 </body>
 </html>
-
-
