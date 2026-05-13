@@ -247,7 +247,7 @@
 
     .controls {
       display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 7px;
     }
 
@@ -1397,12 +1397,12 @@ function catBlessing(playerId) {
           </div>
           <div>
             <div class="controls">
-              <button class="life-btn minus" type="button" data-action="life" data-player="${player.id}" data-amount="-10">-10</button>
+
               <button class="life-btn minus" type="button" data-action="life" data-player="${player.id}" data-amount="-5">-5</button>
               <button class="life-btn minus" type="button" data-action="life" data-player="${player.id}" data-amount="-1">-1</button>
               <button class="life-btn plus" type="button" data-action="life" data-player="${player.id}" data-amount="1">+1</button>
               <button class="life-btn plus" type="button" data-action="life" data-player="${player.id}" data-amount="5">+5</button>
-              <button class="life-btn plus" type="button" data-action="life" data-player="${player.id}" data-amount="10">+10</button>
+
 ${isAngel(player) && state.players.length === 2 ? `
   <button class="cat-btn" type="button" data-action="cat" data-player="${player.id}">
     🐱 +1 Me / -1 Opponent
