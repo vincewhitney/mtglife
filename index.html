@@ -634,6 +634,16 @@
         min-height: 300px;
       }
     }
+.cat-btn {
+  grid-column: 1 / -1;
+  min-height: 44px;
+  border: 1px solid rgba(255, 209, 102, 0.5);
+  border-radius: 15px;
+  color: #ffd166;
+  background: rgba(255, 209, 102, 0.12);
+  font-size: 1rem;
+  font-weight: 900;
+}
   </style>
 </head>
 <body>
@@ -1070,7 +1080,42 @@
     function vibrate(pattern) {
       if (navigator.vibrate) navigator.vibrate(pattern);
     }
+function isAngel(player) {
+  return player.name.trim().toLowerCase() === 'angel';
+}
 
+function catBlessing(playerId) {
+  if (state.players.length !== 2) return;
+
+  const angel = findPlayer(playerId);
+  if (!angel || !isAngel(angel)) return;
+
+  const opponent = state.players.find((player) => player.id !== playerId);
+  if (!opponent) return;
+
+  commitAllPendingLifeChanges();
+  pushUndo(`${angel.name} cat blessing`);
+
+  angel.life += 1;
+  opponent.life -= 1;
+
+  angel.stats.lifeGained += 1;
+  opponent.stats.damageTaken += 1;
+
+  logAction('cat', `${angel.name} used Cat Blessing: +1 life to ${angel.name}, -1 life to ${opponent.name}`, {
+    playerId: angel.id,
+    opponentId: opponent.id,
+    amount: 1
+  });
+
+  render();
+  save();
+
+  showDelta(angel.id, 1, '+1 🐱');
+  showDelta(opponent.id, -1, '-1 🐱');
+
+  vibrate([15, 20, 15]);
+}
     function changeLife(playerId, amount) {
       const player = findPlayer(playerId);
       if (!player) return;
@@ -1355,6 +1400,11 @@
               <button class="life-btn plus" type="button" data-action="life" data-player="${player.id}" data-amount="1">+1</button>
               <button class="life-btn plus" type="button" data-action="life" data-player="${player.id}" data-amount="5">+5</button>
               <button class="life-btn plus" type="button" data-action="life" data-player="${player.id}" data-amount="10">+10</button>
+${isAngel(player) && state.players.length === 2 ? `
+  <button class="cat-btn" type="button" data-action="cat" data-player="${player.id}">
+    🐱 +1 Me / -1 Opponent
+  </button>
+` : ''}
             </div>
             ${counterControls}
           </div>
@@ -1457,9 +1507,10 @@
         if (button.dataset.action === 'life') changeLife(playerId, amount);
         if (button.dataset.action === 'poison') changePoison(playerId, amount);
         if (button.dataset.action === 'commander') openCommanderDamage(playerId);
-        if (button.dataset.action === 'eliminate') toggleEliminated(playerId);
-        if (button.dataset.action === 'roll') rollDie(playerId);
-        if (button.dataset.action === 'coin') flipCoin(playerId);
+        if (button.dataset.action === 'eliminate') toggleEliminated(playerId);if (button.dataset.action === 'roll') rollDie(playerId);
+if (button.dataset.action === 'coin') flipCoin(playerId);
+if (button.dataset.action === 'cat') catBlessing(playerId);
+
       });
 
       els.setupButton.addEventListener('click', openSetup);
