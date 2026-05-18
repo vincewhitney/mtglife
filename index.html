@@ -39,25 +39,20 @@
       overflow: hidden;
     }
 
-    body.is-multiplayer {
-      overflow-y: auto;
-    }
-
-    body.is-multiplayer .table {
-      height: auto;
-      min-height: 0;
-      overflow: visible;
-    }
-
+    body.is-multiplayer,
     body.is-duel-scroll {
       overflow-y: auto;
     }
 
+    body.is-multiplayer .table,
     body.is-duel-scroll .table.duel {
       height: auto;
       min-height: 0;
-      grid-template-rows: auto auto;
       overflow: visible;
+    }
+
+    body.is-duel-scroll .table.duel {
+      grid-template-rows: auto auto;
     }
 
     button, input, select { font: inherit; }
@@ -65,7 +60,7 @@
 
     .app-bar {
       display: grid;
-      grid-template-columns: auto auto 1fr auto auto;
+      grid-template-columns: auto auto 1fr auto auto auto;
       gap: 8px;
       align-items: center;
       padding: max(10px, env(safe-area-inset-top)) 12px 8px;
@@ -123,6 +118,7 @@
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
     }
+
     .table.multiplayer {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       grid-auto-rows: auto;
@@ -263,6 +259,39 @@
 
     .life-btn.minus { color: var(--danger); }
     .life-btn.plus { color: var(--good); }
+
+    .cat-btn {
+      grid-column: 2 / 4;
+      justify-self: center;
+      width: min(100%, 132px);
+      min-height: 36px;
+      border: 1px solid rgba(255, 209, 102, 0.5);
+      border-radius: 13px;
+      color: #ffd166;
+      background: rgba(255, 209, 102, 0.12);
+      font-size: 0.9rem;
+      font-weight: 900;
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      align-items: center;
+      gap: 8px;
+      padding: 3px 10px 3px 4px;
+    }
+
+    .cat-btn img {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .cat-btn span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     .delta-badge, .roll-badge {
       position: absolute;
@@ -456,6 +485,18 @@
       outline: none;
     }
 
+    .field textarea {
+      width: 100%;
+      min-height: 84px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      outline: none;
+    }
+
     .modal-actions {
       display: flex;
       justify-content: center;
@@ -544,6 +585,32 @@
 
     .history-item.expanded .history-details { display: block; }
 
+    .history-notes-editor {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      margin: 10px auto;
+      max-width: 340px;
+    }
+
+    .history-notes-editor .field {
+      width: 100%;
+      text-align: center;
+    }
+
+    .history-notes-editor textarea {
+      min-height: 70px;
+      text-align: center;
+    }
+
+    .history-notes-editor .modal-btn {
+      width: auto;
+      min-height: 34px;
+      padding: 0 14px;
+      font-size: 0.76rem;
+      text-align: center;
+    }
+
     .log-list {
       display: grid;
       gap: 6px;
@@ -562,22 +629,131 @@
     .log-entry .good { color: var(--good); font-weight: 900; }
     .log-entry .danger { color: var(--danger); font-weight: 900; }
 
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .toggle-row input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--accent);
+    }
+
+    .ranking-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .ranking-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      color: inherit;
+      text-align: left;
+    }
+
+    button.ranking-item {
+      cursor: pointer;
+    }
+
+    button.ranking-item:active {
+      transform: scale(0.99);
+    }
+
+    .ranking-place {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      color: var(--text);
+      background: rgba(138,164,255,0.18);
+      font-weight: 900;
+    }
+
+    .ranking-name {
+      min-width: 0;
+      color: var(--text);
+      font-weight: 900;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ranking-meta {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .ranking-rating {
+      color: var(--warn);
+      font-size: 1.05rem;
+      font-weight: 900;
+    }
+
+    .ranking-detail-head {
+      display: grid;
+      gap: 8px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .ranking-detail-rating {
+      color: var(--warn);
+      font-size: 2rem;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .match-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .delete-match-btn {
+      border: 1px solid rgba(255, 107, 129, 0.45);
+      border-radius: 999px;
+      padding: 6px 9px;
+      color: var(--danger);
+      background: rgba(255, 107, 129, 0.1);
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .history-delete-btn {
+      margin-top: 10px;
+    }
+
     @media (max-width: 720px) {
-      .app-bar { grid-template-columns: repeat(4, minmax(0, auto)); }
+      .app-bar { grid-template-columns: repeat(5, minmax(0, auto)); }
       .status { grid-column: 1 / -1; grid-row: 2; width: 100%; }
       .toolbar-btn { min-height: 38px; padding: 0 10px; font-size: 0.78rem; }
-      body:not(.is-multiplayer) {
-        overflow-y: auto;
-      }
+      body:not(.is-multiplayer) { overflow-y: auto; }
       body:not(.is-multiplayer) .table.duel {
         height: auto;
         min-height: 0;
         grid-template-rows: auto auto;
         overflow: visible;
       }
-      .table.duel .player-card {
-        min-height: 330px;
-      }
+      .table.duel .player-card { min-height: 330px; }
       .table.multiplayer {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         grid-auto-rows: auto;
@@ -587,17 +763,15 @@
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
       }
-      .table.multiplayer .player-card {
-        min-height: 330px;
-      }
+      .table.multiplayer .player-card { min-height: 330px; }
       .player-card { padding: 10px; gap: 7px; border-radius: 18px; }
       .name { padding: 8px 10px; font-size: 0.72rem; }
       .chip-btn { min-width: 42px; min-height: 32px; padding: 0 8px; font-size: 0.7rem; }
       .life-btn { min-height: 40px; font-size: 1rem; border-radius: 12px; }
       .controls {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 6px;
-}
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+      }
       .damage-stepper { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .pill { font-size: 0.58rem; padding: 5px 7px; }
     }
@@ -611,9 +785,7 @@
         -webkit-overflow-scrolling: touch;
       }
 
-      .table.multiplayer .player-card {
-        min-height: 340px;
-      }
+      .table.multiplayer .player-card { min-height: 340px; }
     }
 
     @media (max-height: 680px) {
@@ -624,29 +796,15 @@
       .life-btn { min-height: 36px; }
       .counter-row, .commander-row { display: none; }
       .multiplayer .counter-row, .multiplayer .commander-row { display: flex; }
-      body:not(.is-multiplayer) {
-        overflow-y: auto;
-      }
+      body:not(.is-multiplayer) { overflow-y: auto; }
       body:not(.is-multiplayer) .table.duel {
         height: auto;
         min-height: 0;
         grid-template-rows: auto auto;
         overflow: visible;
       }
-      .table.duel .player-card {
-        min-height: 300px;
-      }
+      .table.duel .player-card { min-height: 300px; }
     }
-.cat-btn {
-  grid-column: 1 / -1;
-  min-height: 44px;
-  border: 1px solid rgba(255, 209, 102, 0.5);
-  border-radius: 15px;
-  color: #ffd166;
-  background: rgba(255, 209, 102, 0.12);
-  font-size: 1rem;
-  font-weight: 900;
-}
   </style>
 </head>
 <body>
@@ -655,10 +813,12 @@
     <button class="toolbar-btn" id="undoButton" type="button">Undo</button>
     <div class="status" id="statusText"></div>
     <button class="toolbar-btn" id="historyButton" type="button">History</button>
-    <button class="toolbar-btn" id="newGameButton" type="button">New Game</button>
+    <button class="toolbar-btn" id="rankingButton" type="button">Ranking</button>
+    <button class="toolbar-btn" id="newGameButton" type="button">End Game</button>
   </header>
 
   <main class="table" id="table" aria-label="Life counter table"></main>
+  <datalist id="knownPlayerNames"></datalist>
 
   <div class="modal" id="setupModal" aria-hidden="true">
     <div class="modal-panel">
@@ -699,6 +859,42 @@
         <button class="modal-btn" id="historyClose" type="button">Close</button>
         <button class="modal-btn" id="historyClear" type="button">Clear History</button>
       </div>
+    </div>
+  </div>
+
+  <div class="modal" id="rankingModal" aria-hidden="true">
+    <div class="modal-panel">
+      <h2 class="modal-title">Ranking</h2>
+      <div class="ranking-list" id="rankingList"></div>
+      <div class="modal-actions">
+        <button class="modal-btn" id="rankingReset" type="button">Reset Elo</button>
+        <button class="modal-btn" id="rankingClose" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="endGameModal" aria-hidden="true">
+    <div class="modal-panel">
+      <h2 class="modal-title">End Game</h2>
+      <form class="field-grid" id="endGameForm">
+        <div class="field">
+          <label for="winnerInput">Winner</label>
+          <select id="winnerInput"></select>
+        </div>
+        <div class="field-grid" id="endGameNameFields"></div>
+        <label class="toggle-row">
+          <input id="rankedGameInput" type="checkbox" />
+          Record as ranked game
+        </label>
+        <div class="field">
+          <label for="matchNotesInput">Match Notes</label>
+          <textarea id="matchNotesInput" rows="3" placeholder="Decks, win condition, matchup notes"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn primary" type="submit">End Game</button>
+          <button class="modal-btn" id="endGameClose" type="button">Close</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -745,8 +941,11 @@
   <script>
     const STATE_KEY = 'mtg-life-state-v3';
     const HISTORY_KEY = 'mtg-game-history-v2';
+    const RANKINGS_KEY = 'mtg-elo-rankings-v1';
     const MAX_HISTORY = 75;
     const MAX_UNDO = 40;
+    const STARTING_ELO = 1200;
+    const ELO_K = 32;
 
     const defaults = {
       settings: { mode: 'duel', playerCount: 2, startingLife: 20 },
@@ -758,10 +957,12 @@
 
     const els = {
       table: document.getElementById('table'),
+      knownPlayerNames: document.getElementById('knownPlayerNames'),
       statusText: document.getElementById('statusText'),
       setupButton: document.getElementById('setupButton'),
       undoButton: document.getElementById('undoButton'),
       historyButton: document.getElementById('historyButton'),
+      rankingButton: document.getElementById('rankingButton'),
       newGameButton: document.getElementById('newGameButton'),
       setupModal: document.getElementById('setupModal'),
       setupForm: document.getElementById('setupForm'),
@@ -773,6 +974,17 @@
       historyList: document.getElementById('historyList'),
       historyClose: document.getElementById('historyClose'),
       historyClear: document.getElementById('historyClear'),
+      rankingModal: document.getElementById('rankingModal'),
+      rankingList: document.getElementById('rankingList'),
+      rankingReset: document.getElementById('rankingReset'),
+      rankingClose: document.getElementById('rankingClose'),
+      endGameModal: document.getElementById('endGameModal'),
+      endGameForm: document.getElementById('endGameForm'),
+      winnerInput: document.getElementById('winnerInput'),
+      endGameNameFields: document.getElementById('endGameNameFields'),
+      rankedGameInput: document.getElementById('rankedGameInput'),
+      matchNotesInput: document.getElementById('matchNotesInput'),
+      endGameClose: document.getElementById('endGameClose'),
       choiceModal: document.getElementById('choiceModal'),
       choiceTitle: document.getElementById('choiceTitle'),
       choiceOptions: document.getElementById('choiceOptions'),
@@ -886,8 +1098,21 @@
       }
     }
 
+    function loadRankings() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(RANKINGS_KEY) || '{"players":{},"matches":[]}');
+        return {
+          players: parsed && typeof parsed.players === 'object' ? parsed.players : {},
+          matches: Array.isArray(parsed?.matches) ? parsed.matches : []
+        };
+      } catch {
+        return { players: {}, matches: [] };
+      }
+    }
+
     let state = loadState();
     let history = loadHistory();
+    let rankings = loadRankings();
 
     function save() {
       localStorage.setItem(STATE_KEY, JSON.stringify(state));
@@ -895,6 +1120,10 @@
 
     function saveHistory() {
       localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+
+    function saveRankings() {
+      localStorage.setItem(RANKINGS_KEY, JSON.stringify(rankings));
     }
 
     function snapshot() {
@@ -943,6 +1172,112 @@
 
     function formatSigned(value) {
       return value > 0 ? `+${value}` : String(value);
+    }
+
+    function isDefaultPlayerName(name) {
+      return /^Player \d+$/i.test(String(name).trim());
+    }
+
+    function normalizeRankingName(name) {
+      return String(name).trim().replace(/\s+/g, ' ');
+    }
+
+    function normalizeMatchNotes(notes) {
+      return String(notes || '').trim();
+    }
+
+    function getRankedPlayerNames() {
+      const names = new Map();
+      const addName = (name) => {
+        const normalized = normalizeRankingName(name);
+        if (!normalized || isDefaultPlayerName(normalized)) return;
+        names.set(rankingKey(normalized), normalized);
+      };
+
+      Object.values(rankings.players || {}).forEach((player) => addName(player.name));
+      (rankings.matches || []).forEach((match) => {
+        addName(match.winner);
+        (match.opponents || []).forEach(addName);
+      });
+
+      return Array.from(names.values()).sort((a, b) => a.localeCompare(b));
+    }
+
+    function updateKnownPlayerNamesList() {
+      els.knownPlayerNames.innerHTML = getRankedPlayerNames()
+        .map((name) => `<option value="${escapeHtml(name)}"></option>`)
+        .join('');
+    }
+
+    function resolveKnownPlayerName(name) {
+      const normalized = normalizeRankingName(name);
+      const known = getRankedPlayerNames().find((existing) => rankingKey(existing) === rankingKey(normalized));
+      return known || normalized;
+    }
+
+    function choosePlayerName(currentName, onChoose) {
+      updateKnownPlayerNamesList();
+      const rankedNames = getRankedPlayerNames();
+      els.choiceTitle.textContent = 'Player Name';
+      els.choiceOptions.innerHTML = [
+        ...rankedNames.map((name) => `
+          <button class="modal-btn primary" type="button" data-pick-name="${escapeHtml(name)}">${escapeHtml(name)}</button>
+        `),
+        '<button class="modal-btn" type="button" data-add-player-name="true">Add New Player</button>'
+      ].join('');
+
+      els.choiceOptions.querySelectorAll('[data-pick-name]').forEach((button) => {
+        button.addEventListener('click', () => {
+          onChoose(button.dataset.pickName);
+          closeModal(els.choiceModal);
+        });
+      });
+
+      const addButton = els.choiceOptions.querySelector('[data-add-player-name]');
+      addButton.addEventListener('click', () => {
+        const nextName = normalizeRankingName(prompt('New player name', isDefaultPlayerName(currentName) ? '' : currentName) || '');
+        if (nextName) onChoose(resolveKnownPlayerName(nextName));
+        closeModal(els.choiceModal);
+      });
+
+      openModal(els.choiceModal);
+    }
+
+    function setPlayerName(playerId, nextName) {
+      const player = findPlayer(playerId);
+      const normalized = resolveKnownPlayerName(nextName);
+      if (!player || !normalized || normalized === player.name) return;
+      pushUndo(`rename ${player.name}`);
+      player.name = normalized;
+      logAction('name', `Renamed player to ${normalized}`, { playerId: player.id });
+      render();
+      save();
+    }
+
+    function rankingKey(name) {
+      return normalizeRankingName(name).toLowerCase();
+    }
+
+    function getRankingRecord(name) {
+      const normalized = normalizeRankingName(name);
+      const key = rankingKey(normalized);
+      if (!rankings.players[key]) rankings.players[key] = createRankingRecord(normalized);
+      return rankings.players[key];
+    }
+
+    function expectedScore(playerRating, opponentRating) {
+      return 1 / (1 + Math.pow(10, (opponentRating - playerRating) / 400));
+    }
+
+    function createRankingRecord(name) {
+      return {
+        name: normalizeRankingName(name),
+        rating: STARTING_ELO,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        games: 0
+      };
     }
 
     function describeSettings() {
@@ -1038,19 +1373,6 @@
       }, 700);
     }
 
-    function showChoiceResult(playerId, value) {
-      const badge = document.querySelector(`[data-roll-for="${playerId}"]`);
-      if (!badge) return;
-      clearTimeout(rollTimers[playerId]);
-      clearTimeout(rollAnimationTimers[playerId]);
-      clearInterval(rollIntervals[playerId]);
-      clearInterval(coinIntervals[playerId]);
-      badge.classList.remove('rolling', 'flipping', 'coin-result');
-      badge.textContent = value;
-      badge.classList.add('show');
-      rollTimers[playerId] = setTimeout(() => badge.classList.remove('show'), 2000);
-    }
-
     function renderCoinFace(value) {
       return `<div class="coin-face" aria-label="${value}">${value === 'Heads' ? 'H' : 'T'}</div>`;
     }
@@ -1083,42 +1405,56 @@
     function vibrate(pattern) {
       if (navigator.vibrate) navigator.vibrate(pattern);
     }
-function isAngel(player) {
-  return player.name.trim().toLowerCase() === 'angel';
-}
 
-function catBlessing(playerId) {
-  if (state.players.length !== 2) return;
+    function isAngel(player) {
+      return player.name.trim().toLowerCase() === 'angel';
+    }
 
-  const angel = findPlayer(playerId);
-  if (!angel || !isAngel(angel)) return;
+    function catBlessing(playerId) {
+      if (state.players.length !== 2) return;
 
-  const opponent = state.players.find((player) => player.id !== playerId);
-  if (!opponent) return;
+      const angel = findPlayer(playerId);
+      if (!angel || !isAngel(angel)) return;
 
-  commitAllPendingLifeChanges();
-  pushUndo(`${angel.name} cat blessing`);
+      const opponent = state.players.find((player) => player.id !== playerId);
+      if (!opponent) return;
 
-  angel.life += 1;
-  opponent.life -= 1;
+      pushUndo(`${angel.name} cat blessing`);
 
-  angel.stats.lifeGained += 1;
-  opponent.stats.damageTaken += 1;
+      const angelPreviousLife = pendingLifeChanges[angel.id]?.previousLife ?? angel.life;
+      const opponentPreviousLife = pendingLifeChanges[opponent.id]?.previousLife ?? opponent.life;
 
-  logAction('cat', `${angel.name} used Cat Blessing: +1 life to ${angel.name}, -1 life to ${opponent.name}`, {
-    playerId: angel.id,
-    opponentId: opponent.id,
-    amount: 1
-  });
+      angel.life += 1;
+      opponent.life -= 1;
 
-  render();
-  save();
+      angel.stats.lifeGained += 1;
+      opponent.stats.damageTaken += 1;
 
-  showDelta(angel.id, 1, '+1 🐱');
-  showDelta(opponent.id, -1, '-1 🐱');
+      pendingLifeChanges[angel.id] = {
+        playerId: angel.id,
+        playerName: angel.name,
+        amount: (pendingLifeChanges[angel.id]?.amount || 0) + 1,
+        previousLife: angelPreviousLife,
+        newLife: angel.life
+      };
 
-  vibrate([15, 20, 15]);
-}
+      pendingLifeChanges[opponent.id] = {
+        playerId: opponent.id,
+        playerName: opponent.name,
+        amount: (pendingLifeChanges[opponent.id]?.amount || 0) - 1,
+        previousLife: opponentPreviousLife,
+        newLife: opponent.life
+      };
+
+      render();
+      save();
+
+      showAccumulatedLifeDelta(angel.id, 1);
+      showAccumulatedLifeDelta(opponent.id, -1);
+
+      vibrate([15, 20, 15]);
+    }
+
     function changeLife(playerId, amount) {
       const player = findPlayer(playerId);
       if (!player) return;
@@ -1229,24 +1565,347 @@ function catBlessing(playerId) {
       };
     }
 
+    function applyRankedResult(resultId, notes = '') {
+      const changes = [];
+      const matchId = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
+      const isDraw = resultId === 'draw';
+      const matchNotes = normalizeMatchNotes(notes);
+
+      if (isDraw) {
+        state.players.forEach((player) => getRankingRecord(player.name));
+        for (let i = 0; i < state.players.length; i += 1) {
+          for (let j = i + 1; j < state.players.length; j += 1) {
+            const firstRecord = getRankingRecord(state.players[i].name);
+            const secondRecord = getRankingRecord(state.players[j].name);
+            const firstBefore = firstRecord.rating;
+            const secondBefore = secondRecord.rating;
+            const firstDelta = Math.round(ELO_K * (0.5 - expectedScore(firstBefore, secondBefore)));
+            const secondDelta = Math.round(ELO_K * (0.5 - expectedScore(secondBefore, firstBefore)));
+
+            firstRecord.rating += firstDelta;
+            firstRecord.draws = (firstRecord.draws || 0) + 1;
+            firstRecord.games += 1;
+
+            secondRecord.rating += secondDelta;
+            secondRecord.draws = (secondRecord.draws || 0) + 1;
+            secondRecord.games += 1;
+
+            changes.push({
+              result: 'draw',
+              winner: firstRecord.name,
+              opponent: secondRecord.name,
+              winnerBefore: firstBefore,
+              winnerAfter: firstRecord.rating,
+              winnerDelta: firstDelta,
+              opponentBefore: secondBefore,
+              opponentAfter: secondRecord.rating,
+              opponentDelta: secondDelta
+            });
+          }
+        }
+
+        rankings.matches.unshift({
+          id: matchId,
+          at: new Date().toISOString(),
+          result: 'draw',
+          winner: null,
+          opponents: state.players.map((player) => normalizeRankingName(player.name)),
+          notes: matchNotes,
+          changes
+        });
+        rankings.matches = rankings.matches.slice(0, 200);
+        saveRankings();
+        return { matchId, changes };
+      }
+
+      const winner = findPlayer(resultId);
+      const opponents = state.players.filter((player) => player.id !== resultId);
+      if (!winner || !opponents.length) return null;
+
+      const winnerRecord = getRankingRecord(winner.name);
+
+      opponents.forEach((opponent) => {
+        const opponentRecord = getRankingRecord(opponent.name);
+        const winnerBefore = winnerRecord.rating;
+        const opponentBefore = opponentRecord.rating;
+        const winnerDelta = Math.round(ELO_K * (1 - expectedScore(winnerBefore, opponentBefore)));
+        const opponentDelta = Math.round(ELO_K * (0 - expectedScore(opponentBefore, winnerBefore)));
+
+        winnerRecord.rating += winnerDelta;
+        winnerRecord.wins += 1;
+        winnerRecord.games += 1;
+
+        opponentRecord.rating += opponentDelta;
+        opponentRecord.losses += 1;
+        opponentRecord.games += 1;
+
+        changes.push({
+          result: 'win',
+          winner: winnerRecord.name,
+          opponent: opponentRecord.name,
+          winnerBefore,
+          winnerAfter: winnerRecord.rating,
+          winnerDelta,
+          opponentBefore,
+          opponentAfter: opponentRecord.rating,
+          opponentDelta
+        });
+      });
+
+      rankings.matches.unshift({
+        id: matchId,
+        at: new Date().toISOString(),
+        result: 'win',
+        winner: normalizeRankingName(winner.name),
+        opponents: opponents.map((player) => normalizeRankingName(player.name)),
+        notes: matchNotes,
+        changes
+      });
+      rankings.matches = rankings.matches.slice(0, 200);
+      saveRankings();
+      return { matchId, changes };
+    }
+
+    function recomputeRankingsFromMatches() {
+      const matches = rankings.matches || [];
+      const players = {};
+
+      function recordFor(name) {
+        const normalized = normalizeRankingName(name);
+        const key = rankingKey(normalized);
+        if (!players[key]) players[key] = createRankingRecord(normalized);
+        return players[key];
+      }
+
+      [...matches].reverse().forEach((match) => {
+        if (match.result === 'draw') {
+          const names = match.opponents || [];
+          const changes = [];
+          for (let i = 0; i < names.length; i += 1) {
+            for (let j = i + 1; j < names.length; j += 1) {
+              const firstRecord = recordFor(names[i]);
+              const secondRecord = recordFor(names[j]);
+              const firstBefore = firstRecord.rating;
+              const secondBefore = secondRecord.rating;
+              const firstDelta = Math.round(ELO_K * (0.5 - expectedScore(firstBefore, secondBefore)));
+              const secondDelta = Math.round(ELO_K * (0.5 - expectedScore(secondBefore, firstBefore)));
+
+              firstRecord.rating += firstDelta;
+              firstRecord.draws = (firstRecord.draws || 0) + 1;
+              firstRecord.games += 1;
+
+              secondRecord.rating += secondDelta;
+              secondRecord.draws = (secondRecord.draws || 0) + 1;
+              secondRecord.games += 1;
+
+              changes.push({
+                result: 'draw',
+                winner: firstRecord.name,
+                opponent: secondRecord.name,
+                winnerBefore: firstBefore,
+                winnerAfter: firstRecord.rating,
+                winnerDelta: firstDelta,
+                opponentBefore: secondBefore,
+                opponentAfter: secondRecord.rating,
+                opponentDelta: secondDelta
+              });
+            }
+          }
+          match.changes = changes;
+          return;
+        }
+
+        const winnerRecord = recordFor(match.winner);
+        const changes = [];
+        (match.opponents || []).forEach((opponentName) => {
+          const opponentRecord = recordFor(opponentName);
+          const winnerBefore = winnerRecord.rating;
+          const opponentBefore = opponentRecord.rating;
+          const winnerDelta = Math.round(ELO_K * (1 - expectedScore(winnerBefore, opponentBefore)));
+          const opponentDelta = Math.round(ELO_K * (0 - expectedScore(opponentBefore, winnerBefore)));
+
+          winnerRecord.rating += winnerDelta;
+          winnerRecord.wins += 1;
+          winnerRecord.games += 1;
+
+          opponentRecord.rating += opponentDelta;
+          opponentRecord.losses += 1;
+          opponentRecord.games += 1;
+
+          changes.push({
+            result: 'win',
+            winner: winnerRecord.name,
+            opponent: opponentRecord.name,
+            winnerBefore,
+            winnerAfter: winnerRecord.rating,
+            winnerDelta,
+            opponentBefore,
+            opponentAfter: opponentRecord.rating,
+            opponentDelta
+          });
+        });
+        match.changes = changes;
+      });
+
+      rankings.players = players;
+    }
+
+    function syncHistoryRatingChanges() {
+      const matchesById = Object.fromEntries((rankings.matches || []).map((match) => [match.id, match]));
+      history = history.map((game) => {
+        if (!game.rankingMatchId) return game;
+        const match = matchesById[game.rankingMatchId];
+        if (!match) return { ...game, ranked: false, ratingChanges: [], rankingMatchId: null };
+        return { ...game, ratingChanges: clone(match.changes || []), notes: match.notes ?? game.notes ?? '' };
+      });
+    }
+
+    function updateHistoryGameNotes(gameId, notes) {
+      const nextNotes = normalizeMatchNotes(notes);
+      history = history.map((game) => {
+        if (game.id !== gameId) return game;
+        return { ...game, notes: nextNotes };
+      });
+      const game = history.find((item) => item.id === gameId);
+      if (game?.rankingMatchId) {
+        const match = (rankings.matches || []).find((item) => item.id === game.rankingMatchId);
+        if (match) {
+          match.notes = nextNotes;
+          saveRankings();
+        }
+      }
+      saveHistory();
+      renderHistory();
+    }
+
+    function unrankMatch(matchId, returnPlayerKey, ask = true) {
+      const match = (rankings.matches || []).find((item) => item.id === matchId);
+      if (!match) return;
+      const label = `${match.winner} vs ${(match.opponents || []).join(', ')}`;
+      if (ask && !confirm(`Unrank this game: ${label}? It will stay in History, but Elo ratings will be recalculated.`)) return;
+
+      rankings.matches = (rankings.matches || []).filter((item) => item.id !== matchId);
+      recomputeRankingsFromMatches();
+      syncHistoryRatingChanges();
+      saveRankings();
+      saveHistory();
+
+      if (rankings.players[returnPlayerKey]) renderPlayerRankingDetail(returnPlayerKey);
+      else renderRankings();
+    }
+
+    function deleteHistoryGame(gameId) {
+      const game = history.find((item) => item.id === gameId);
+      if (!game) return;
+      const label = game.winnerName ? `${game.winnerName} won` : 'this game';
+      if (!confirm(`Delete ${label} from History? This cannot be undone.`)) return;
+
+      if (game.rankingMatchId) {
+        rankings.matches = (rankings.matches || []).filter((item) => item.id !== game.rankingMatchId);
+        recomputeRankingsFromMatches();
+        syncHistoryRatingChanges();
+        saveRankings();
+      }
+
+      history = history.filter((item) => item.id !== gameId);
+      saveHistory();
+      renderHistory();
+    }
+
+    function resetEloRankings() {
+      if (!confirm('Reset all Elo rankings and ranked match records? Game history will stay, but ranked labels will become casual and this cannot be undone.')) return;
+      rankings = { players: {}, matches: [] };
+      history = history.map((game) => game.ranked
+        ? { ...game, ranked: false, ratingChanges: [], rankingMatchId: null }
+        : game
+      );
+      saveRankings();
+      saveHistory();
+      renderRankings();
+    }
+
+    function openEndGame() {
+      commitAllPendingLifeChanges();
+      els.winnerInput.innerHTML = '<option value="draw">Draw</option>' + state.players.map((player) => (
+        `<option value="${escapeHtml(player.id)}">${escapeHtml(player.name)}</option>`
+      )).join('');
+      els.endGameNameFields.innerHTML = state.players
+        .filter((player) => isDefaultPlayerName(player.name))
+        .map((player) => `
+          <div class="field">
+            <label for="name-${escapeHtml(player.id)}">Name for ${escapeHtml(player.name)}</label>
+            <input id="name-${escapeHtml(player.id)}" type="text" readonly data-end-name-for="${escapeHtml(player.id)}" placeholder="Select or add player" />
+          </div>
+        `).join('');
+      els.rankedGameInput.checked = false;
+      els.matchNotesInput.value = '';
+      updateKnownPlayerNamesList();
+      els.endGameNameFields.querySelectorAll('[data-end-name-for]').forEach((input) => {
+        input.addEventListener('click', () => {
+          const player = findPlayer(input.dataset.endNameFor);
+          choosePlayerName(player?.name || input.value, (nextName) => {
+            input.value = nextName;
+          });
+        });
+      });
+      openModal(els.endGameModal);
+    }
+
+    function finishEndedGame(event) {
+      event.preventDefault();
+      const resultId = els.winnerInput.value;
+      const isDraw = resultId === 'draw';
+      const winner = isDraw ? null : findPlayer(resultId);
+      if (!isDraw && !winner) return;
+
+      els.endGameNameFields.querySelectorAll('[data-end-name-for]').forEach((input) => {
+        const player = findPlayer(input.dataset.endNameFor);
+        const nextName = resolveKnownPlayerName(input.value);
+        if (player && nextName) player.name = nextName;
+      });
+
+      if (els.rankedGameInput.checked) {
+        const missingName = state.players.find((player) => isDefaultPlayerName(player.name));
+        if (missingName) {
+          alert('Name every default player before recording a ranked game.');
+          return;
+        }
+        const uniqueNames = new Set(state.players.map((player) => rankingKey(player.name)));
+        if (uniqueNames.size !== state.players.length) {
+          alert('Ranked games need unique player names.');
+          return;
+        }
+      }
+
+      const matchNotes = normalizeMatchNotes(els.matchNotesInput.value);
+      const rankedResult = els.rankedGameInput.checked ? applyRankedResult(resultId, matchNotes) : null;
+      const record = makeGameRecord();
+      record.result = isDraw ? 'draw' : 'win';
+      record.winnerId = isDraw ? null : resultId;
+      record.winnerName = isDraw ? null : (findPlayer(resultId)?.name || winner.name);
+      record.ranked = els.rankedGameInput.checked;
+      record.rankingMatchId = rankedResult?.matchId || null;
+      record.ratingChanges = rankedResult?.changes || [];
+      record.notes = matchNotes;
+
+      if (hasActivity() || record.ranked) {
+        history.unshift(record);
+        history = history.slice(0, MAX_HISTORY);
+        saveHistory();
+      }
+
+      resetForNewGame(true);
+      closeModal(els.endGameModal);
+      render();
+      save();
+    }
+
     function resetForNewGame(preserveNames = true) {
       const previous = preserveNames ? state.players.map((player) => ({ id: player.id, name: player.name })) : [];
       state.players = createPlayers(state.settings.playerCount, state.settings.startingLife, previous);
       state.currentGameStartedAt = new Date().toISOString();
       state.log = [];
       state.undoStack = [];
-    }
-
-    function startNewGame() {
-      commitAllPendingLifeChanges();
-      if (hasActivity()) {
-        history.unshift(makeGameRecord());
-        history = history.slice(0, MAX_HISTORY);
-        saveHistory();
-      }
-      resetForNewGame(true);
-      render();
-      save();
     }
 
     function applySetup(event) {
@@ -1277,21 +1936,6 @@ function catBlessing(playerId) {
       els.playersInput.value = String(state.settings.playerCount);
       els.lifeInput.value = String(state.settings.startingLife);
       openModal(els.setupModal);
-    }
-
-    function openChoice(title, options) {
-      els.choiceTitle.textContent = title;
-      els.choiceOptions.innerHTML = options.map((option) => (
-        `<button class="modal-btn primary" type="button" data-choice="${escapeHtml(option.value)}">${escapeHtml(option.label)}</button>`
-      )).join('');
-      els.choiceOptions.querySelectorAll('[data-choice]').forEach((button) => {
-        button.addEventListener('click', () => {
-          const option = options.find((item) => item.value === button.dataset.choice);
-          if (option) option.run();
-          closeModal(els.choiceModal);
-        });
-      });
-      openModal(els.choiceModal);
     }
 
     function getCommanderTargetOptions(sourceId) {
@@ -1376,7 +2020,7 @@ function catBlessing(playerId) {
       return `
         <article class="player-card ${player.eliminated ? 'is-eliminated' : ''}">
           <div class="player-head">
-            <div class="name" contenteditable="true" spellcheck="false" data-name-for="${player.id}">${escapeHtml(player.name)}</div>
+            <button class="name" type="button" data-name-for="${player.id}" aria-label="${escapeHtml(player.name)} name">${escapeHtml(player.name)}</button>
             <div class="head-actions">
               <button class="chip-btn" type="button" data-action="roll" data-player="${player.id}">d6</button>
               <button class="chip-btn" type="button" data-action="coin" data-player="${player.id}">Flip</button>
@@ -1397,17 +2041,16 @@ function catBlessing(playerId) {
           </div>
           <div>
             <div class="controls">
-
               <button class="life-btn minus" type="button" data-action="life" data-player="${player.id}" data-amount="-5">-5</button>
               <button class="life-btn minus" type="button" data-action="life" data-player="${player.id}" data-amount="-1">-1</button>
               <button class="life-btn plus" type="button" data-action="life" data-player="${player.id}" data-amount="1">+1</button>
               <button class="life-btn plus" type="button" data-action="life" data-player="${player.id}" data-amount="5">+5</button>
-
-${isAngel(player) && state.players.length === 2 ? `
-  <button class="cat-btn" type="button" data-action="cat" data-player="${player.id}">
-    🐱 +1 Me / -1 Opponent
-  </button>
-` : ''}
+              ${isAngel(player) && state.players.length === 2 ? `
+                <button class="cat-btn" type="button" data-action="cat" data-player="${player.id}">
+                  <img src="cauldron-familiar-cat.png" alt="" />
+                  <span>+1/-1</span>
+                </button>
+              ` : ''}
             </div>
             ${counterControls}
           </div>
@@ -1422,30 +2065,18 @@ ${isAngel(player) && state.players.length === 2 ? `
       els.table.innerHTML = state.players.map(renderPlayer).join('');
       els.statusText.textContent = describeSettings();
       els.undoButton.disabled = !state.undoStack.length;
+      updateKnownPlayerNamesList();
       bindNameEditors();
     }
 
     function bindNameEditors() {
       els.table.querySelectorAll('[data-name-for]').forEach((el) => {
-        el.addEventListener('blur', () => {
+        el.addEventListener('click', () => {
           const player = findPlayer(el.dataset.nameFor);
           if (!player) return;
-          const nextName = el.textContent.trim() || player.name;
-          if (nextName === player.name) {
-            el.textContent = player.name;
-            return;
-          }
-          pushUndo(`rename ${player.name}`);
-          player.name = nextName;
-          logAction('name', `Renamed player to ${nextName}`, { playerId: player.id });
-          render();
-          save();
-        });
-        el.addEventListener('keydown', (event) => {
-          if (event.key === 'Enter') {
-            event.preventDefault();
-            el.blur();
-          }
+          choosePlayerName(player.name, (nextName) => {
+            setPlayerName(player.id, nextName);
+          });
         });
       });
     }
@@ -1466,9 +2097,28 @@ ${isAngel(player) && state.players.length === 2 ? `
       `).join('')}</div>`;
     }
 
-    function renderHistoryCard(game, title) {
+    function renderRatingChanges(changes) {
+      if (!changes?.length) return '';
+      return `<div class="log-list">${changes.map((change) => `
+        <div class="log-entry">
+          <span>${change.result === 'draw'
+            ? `${escapeHtml(change.winner)} drew ${escapeHtml(change.opponent)}`
+            : `${escapeHtml(change.winner)} beat ${escapeHtml(change.opponent)}`}</span>
+          <span class="good">${formatSigned(change.winnerDelta)}</span>
+        </div>
+        <div class="log-entry">
+          <span>${escapeHtml(change.opponent)}</span>
+          <span class="danger">${formatSigned(change.opponentDelta)}</span>
+        </div>
+      `).join('')}</div>`;
+    }
+
+    function renderHistoryCard(game, title, canDelete = false) {
       const players = game.players.map((player) => `${escapeHtml(player.name)} ${player.life}`).join(' · ');
       const mode = game.settings?.mode === 'commander' ? 'Commander' : 'Regular';
+      const result = game.result === 'draw'
+        ? `Draw · ${game.ranked ? 'Ranked' : 'Casual'}`
+        : game.winnerName ? `Winner ${escapeHtml(game.winnerName)} · ${game.ranked ? 'Ranked' : 'Casual'}` : '';
       return `
         <div class="history-item">
           <button type="button" data-action="expand-history">
@@ -1476,7 +2126,19 @@ ${isAngel(player) && state.players.length === 2 ? `
           </button>
           <div class="history-details">
             ${mode} · ${game.players.length} players · ${formatShortDate(game.startedAt)} to ${formatShortDate(game.endedAt)}
+            ${result ? `<br>${result}` : ''}
+            ${canDelete ? `
+              <div class="history-notes-editor">
+                <div class="field">
+                  <label for="notes-${escapeHtml(game.id)}">Match Notes</label>
+                  <textarea id="notes-${escapeHtml(game.id)}" rows="3" data-history-notes="${escapeHtml(game.id)}" placeholder="Decks, win condition, matchup notes">${escapeHtml(game.notes || '')}</textarea>
+                </div>
+                <button class="modal-btn primary" type="button" data-save-notes="${escapeHtml(game.id)}">Save Notes</button>
+              </div>
+            ` : game.notes ? `<div class="history-details">${escapeHtml(game.notes)}</div>` : ''}
+            ${renderRatingChanges(game.ratingChanges)}
             ${renderLog(game.log || [])}
+            ${canDelete ? `<button class="delete-match-btn history-delete-btn" type="button" data-delete-history="${escapeHtml(game.id)}">Delete History Game</button>` : ''}
           </div>
         </div>
       `;
@@ -1492,12 +2154,119 @@ ${isAngel(player) && state.players.length === 2 ? `
         log: state.log
       };
       const completed = history.length
-        ? history.map((game, index) => renderHistoryCard(game, `Game ${history.length - index}`)).join('')
-        : '<div class="history-item"><strong>No completed games yet</strong><div class="history-details">Press New Game after tracking a game to save it here.</div></div>';
+        ? history.map((game, index) => renderHistoryCard(game, `Game ${history.length - index}`, true)).join('')
+        : '<div class="history-item"><strong>No completed games yet</strong><div class="history-details">Press End Game after tracking a game to save it here.</div></div>';
 
       els.historyList.innerHTML = renderHistoryCard(current, 'Current Game') + completed;
       els.historyList.querySelectorAll('[data-action="expand-history"]').forEach((button) => {
         button.addEventListener('click', () => button.closest('.history-item').classList.toggle('expanded'));
+      });
+      els.historyList.querySelectorAll('[data-delete-history]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          deleteHistoryGame(button.dataset.deleteHistory);
+        });
+      });
+      els.historyList.querySelectorAll('[data-save-notes]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const input = Array.from(els.historyList.querySelectorAll('[data-history-notes]'))
+            .find((item) => item.dataset.historyNotes === button.dataset.saveNotes);
+          updateHistoryGameNotes(button.dataset.saveNotes, input?.value || '');
+        });
+      });
+    }
+
+    function renderRankings() {
+      const rankedPlayers = Object.values(rankings.players || {})
+        .sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
+
+      if (!rankedPlayers.length) {
+        els.rankingList.innerHTML = '<div class="empty-note">No ranked games recorded yet.</div>';
+        return;
+      }
+
+      els.rankingList.innerHTML = rankedPlayers.map((player, index) => `
+        <button class="ranking-item" type="button" data-ranking-player="${escapeHtml(rankingKey(player.name))}">
+          <div class="ranking-place">${index + 1}</div>
+          <div>
+            <div class="ranking-name">${escapeHtml(player.name)}</div>
+            <div class="ranking-meta">${player.wins || 0}W ${player.losses || 0}L ${player.draws || 0}D · ${player.games || 0} games</div>
+          </div>
+          <div class="ranking-rating">${Math.round(player.rating)}</div>
+        </button>
+      `).join('');
+
+      els.rankingList.querySelectorAll('[data-ranking-player]').forEach((button) => {
+        button.addEventListener('click', () => renderPlayerRankingDetail(button.dataset.rankingPlayer));
+      });
+    }
+
+    function getPlayerMatchRows(playerKey) {
+      return (rankings.matches || []).flatMap((match) => {
+        return (match.changes || []).flatMap((change) => {
+          const rows = [];
+          if (rankingKey(change.winner) === playerKey) {
+            rows.push({
+              matchId: match.id,
+              at: match.at,
+              notes: match.notes || '',
+              result: change.result === 'draw' ? 'Draw' : 'Win',
+              opponent: change.opponent,
+              delta: change.winnerDelta,
+              before: change.winnerBefore,
+              after: change.winnerAfter
+            });
+          }
+          if (rankingKey(change.opponent) === playerKey) {
+            rows.push({
+              matchId: match.id,
+              at: match.at,
+              notes: match.notes || '',
+              result: change.result === 'draw' ? 'Draw' : 'Loss',
+              opponent: change.winner,
+              delta: change.opponentDelta,
+              before: change.opponentBefore,
+              after: change.opponentAfter
+            });
+          }
+          return rows;
+        });
+      });
+    }
+
+    function renderPlayerRankingDetail(playerKey) {
+      const player = rankings.players[playerKey];
+      if (!player) return;
+      const rows = getPlayerMatchRows(playerKey);
+      const matchList = rows.length
+        ? `<div class="log-list">${rows.map((row) => `
+          <div class="log-entry match-row">
+            <div>
+              <div>${row.result} vs ${escapeHtml(row.opponent)} · ${formatShortDate(row.at)}</div>
+              <div class="ranking-meta">${Math.round(row.before)} to ${Math.round(row.after)}</div>
+              ${row.notes ? `<div class="ranking-meta">${escapeHtml(row.notes)}</div>` : ''}
+            </div>
+            <span class="${row.delta >= 0 ? 'good' : 'danger'}">${formatSigned(row.delta)}</span>
+          </div>
+          <button class="delete-match-btn" type="button" data-unrank-match="${escapeHtml(row.matchId)}">Unrank Game</button>
+        `).join('')}</div>`
+        : '<div class="empty-note">No ranked match history yet.</div>';
+
+      els.rankingList.innerHTML = `
+        <div class="ranking-detail-head">
+          <div class="ranking-name">${escapeHtml(player.name)}</div>
+          <div class="ranking-detail-rating">${Math.round(player.rating)}</div>
+          <div class="ranking-meta">${player.wins || 0}W ${player.losses || 0}L ${player.draws || 0}D · ${player.games || 0} games</div>
+        </div>
+        ${matchList}
+        <div class="modal-actions">
+          <button class="modal-btn" type="button" id="rankingBack">Back</button>
+        </div>
+      `;
+      document.getElementById('rankingBack').addEventListener('click', renderRankings);
+      els.rankingList.querySelectorAll('[data-unrank-match]').forEach((button) => {
+        button.addEventListener('click', () => unrankMatch(button.dataset.unrankMatch, playerKey));
       });
     }
 
@@ -1510,10 +2279,10 @@ ${isAngel(player) && state.players.length === 2 ? `
         if (button.dataset.action === 'life') changeLife(playerId, amount);
         if (button.dataset.action === 'poison') changePoison(playerId, amount);
         if (button.dataset.action === 'commander') openCommanderDamage(playerId);
-        if (button.dataset.action === 'eliminate') toggleEliminated(playerId);if (button.dataset.action === 'roll') rollDie(playerId);
-if (button.dataset.action === 'coin') flipCoin(playerId);
-if (button.dataset.action === 'cat') catBlessing(playerId);
-
+        if (button.dataset.action === 'eliminate') toggleEliminated(playerId);
+        if (button.dataset.action === 'roll') rollDie(playerId);
+        if (button.dataset.action === 'coin') flipCoin(playerId);
+        if (button.dataset.action === 'cat') catBlessing(playerId);
       });
 
       els.setupButton.addEventListener('click', openSetup);
@@ -1532,7 +2301,10 @@ if (button.dataset.action === 'cat') catBlessing(playerId);
       });
 
       els.undoButton.addEventListener('click', undoLast);
-      els.newGameButton.addEventListener('click', startNewGame);
+      els.newGameButton.addEventListener('click', openEndGame);
+      els.endGameForm.addEventListener('submit', finishEndedGame);
+      els.endGameClose.addEventListener('click', () => closeModal(els.endGameModal));
+      els.endGameModal.addEventListener('click', (event) => { if (event.target === els.endGameModal) closeModal(els.endGameModal); });
 
       els.historyButton.addEventListener('click', () => {
         renderHistory();
@@ -1545,6 +2317,14 @@ if (button.dataset.action === 'cat') catBlessing(playerId);
         saveHistory();
         renderHistory();
       });
+
+      els.rankingButton.addEventListener('click', () => {
+        renderRankings();
+        openModal(els.rankingModal);
+      });
+      els.rankingReset.addEventListener('click', resetEloRankings);
+      els.rankingClose.addEventListener('click', () => closeModal(els.rankingModal));
+      els.rankingModal.addEventListener('click', (event) => { if (event.target === els.rankingModal) closeModal(els.rankingModal); });
 
       els.choiceClose.addEventListener('click', () => closeModal(els.choiceModal));
       els.choiceModal.addEventListener('click', (event) => { if (event.target === els.choiceModal) closeModal(els.choiceModal); });
@@ -1563,21 +2343,26 @@ if (button.dataset.action === 'cat') catBlessing(playerId);
 
       document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
-          [els.setupModal, els.historyModal, els.choiceModal, els.commanderModal].forEach(closeModal);
+          [els.setupModal, els.historyModal, els.rankingModal, els.endGameModal, els.choiceModal, els.commanderModal].forEach(closeModal);
         }
         if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') {
           event.preventDefault();
           undoLast();
         }
       });
+
+      window.addEventListener('resize', render);
     }
 
     function runSelfTests() {
       console.assert(state.players.length >= 2, 'Expected at least two players');
       console.assert(typeof changeLife === 'function', 'Expected changeLife function');
       console.assert(typeof undoLast === 'function', 'Expected undo function');
+      console.assert(typeof catBlessing === 'function', 'Expected cat blessing function');
+      console.assert(typeof applyRankedResult === 'function', 'Expected ranked result function');
       console.assert(Array.isArray(state.undoStack), 'Undo stack should be an array');
       console.assert(Array.isArray(history), 'History should be an array');
+      console.assert(rankings && typeof rankings.players === 'object', 'Rankings should be loaded');
       console.assert(escapeHtml('<x>') === '&lt;x&gt;', 'escapeHtml should encode angle brackets');
     }
 
